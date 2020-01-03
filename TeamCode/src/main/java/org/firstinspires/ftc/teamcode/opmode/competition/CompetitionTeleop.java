@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode.competition;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -25,6 +28,7 @@ public class CompetitionTeleop extends LinearOpMode {
     private Intake intake;
     private FoundationGrabber foundationGrabber;
     private Superstructure superstructure;
+    private FtcDashboard dashboard;
 
     public static double angleCorrection = 0.03;
     private double startingAngle = 0;
@@ -36,7 +40,7 @@ public class CompetitionTeleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
+        dashboard = FtcDashboard.getInstance();
         drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
         elevator = Elevator.getInstance(hardwareMap);
         intake = Intake.getInstance(hardwareMap);
@@ -46,7 +50,7 @@ public class CompetitionTeleop extends LinearOpMode {
         OmegaGamepad driverPad = new OmegaGamepad(gamepad1);
 
         superstructure = new Superstructure(elevator, intake);
-
+        drive.setPoseEstimate(new Pose2d(0,0,0));
         waitForStart();
         intake.release();
         while (!isStopRequested()) {
@@ -104,9 +108,26 @@ public class CompetitionTeleop extends LinearOpMode {
             buttonPad.update();
             driverPad.update();
             superstructure.update();
+            drive.update();
+
+            Pose2d currentPose = drive.getPoseEstimate();
+            Pose2d lastError = drive.getLastError();
+
+            TelemetryPacket packet = new TelemetryPacket();
+            Canvas fieldOverlay = packet.fieldOverlay();
+
+            packet.put("x", currentPose.getX());
+            packet.put("y", currentPose.getY());
+            packet.put("heading", currentPose.getHeading());
+
+            fieldOverlay.setStroke("#3F51B5");
+            fieldOverlay.fillCircle(currentPose.getX(), currentPose.getY(), 3);
+            dashboard.sendTelemetryPacket(packet);
         }
         elevator.stop();
         intake.stop();
+
+
     }
 
     public void updateTelemetry() {
@@ -143,9 +164,9 @@ public class CompetitionTeleop extends LinearOpMode {
         //Left Front is Index 0, Left Back is Index 1, Right Front is Index 2, Right Back is Index 3
         List<Double> powerValues = new ArrayList<>();
 
-        powerValues.add(velocityX - velocityY - velocityR - anglePowerCorrection);
-
         powerValues.add(velocityX + velocityY - velocityR - anglePowerCorrection);
+
+        powerValues.add(velocityX - velocityY - velocityR - anglePowerCorrection);
 
         powerValues.add(velocityX + velocityY + velocityR + anglePowerCorrection);
 

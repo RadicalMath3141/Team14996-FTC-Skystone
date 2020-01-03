@@ -34,7 +34,7 @@ public class Elevator extends Subsystem {
     private static final double g = 386.22;
 
     public static double maxSpeed = 20;
-    public static double maxAcceleration = 7;
+    public static double maxAcceleration = 20;
     public static final double maxJerk = 0;
 
     public static double CORRECTION_CONSTANT = 1.19;
@@ -238,7 +238,9 @@ public class Elevator extends Subsystem {
     }
 
     public void setPosition(double goalHeight){
-        handleTransitionToMOVE_TO_TARGETState(SystemState.MOVE_TO_TARGET,goalHeight);
+        if(goalHeight != this.goalHeight || currentState != SystemState.MOVE_TO_TARGET){
+            handleTransitionToMOVE_TO_TARGETState(SystemState.MOVE_TO_TARGET,goalHeight);
+        }
     }
 
     public SystemState getCurrentState(){
