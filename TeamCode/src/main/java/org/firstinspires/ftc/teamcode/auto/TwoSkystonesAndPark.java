@@ -119,7 +119,7 @@ public class TwoSkystonesAndPark extends LinearOpMode {
                     if(!drive.isBusy()){
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
-                        drive.followTrajectory(new LoadingZoneToFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                        drive.followTrajectory(new LoadingZoneToFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
                     }
 
                     case GOING_TO_FOUNDATION:

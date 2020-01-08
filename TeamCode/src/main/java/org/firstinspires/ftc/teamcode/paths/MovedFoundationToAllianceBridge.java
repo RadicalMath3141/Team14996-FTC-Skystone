@@ -17,9 +17,9 @@ public class MovedFoundationToAllianceBridge {
 
     public Trajectory toTrajectory (){
         if(redAlliance){
-            return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(-3,-40,0)).build();
+            return drive.trajectoryBuilder().splineTo(new Pose2d(-3,-36,Math.toRadians(180))).build();
         }
-        return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(-3,40,0)).build();
+        return drive.trajectoryBuilder().splineTo(new Pose2d(-3,36,Math.toRadians(180))).build();
     }
 
 }

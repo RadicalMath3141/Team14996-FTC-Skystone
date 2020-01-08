@@ -243,6 +243,11 @@ public class Elevator extends Subsystem {
         }
     }
 
+    public void setZero(){
+        currentHeight = 0;
+        currentEncoder = elevatorMotor.getCurrentPosition();
+    }
+
     public SystemState getCurrentState(){
         return currentState;
     }
