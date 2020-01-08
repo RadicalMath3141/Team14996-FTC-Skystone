@@ -45,7 +45,6 @@ public class SkystoneVision extends OpenCvPipeline {
     }
 
     private Stage stageToRenderToViewport = Stage.SKYSTONE_CONTOURS;
-    private Stage[] stages = Stage.values();
 
     @Override
     public Mat processFrame(Mat input){
@@ -225,71 +224,73 @@ public class SkystoneVision extends OpenCvPipeline {
         return output;
     }
 
-    public SkystonePosition.Positions getSkystonePosition(){
-        for(Rect s : stoneRectangles){
-            if(s == null){
-                stoneRectangles.remove(s);
-            }
-        }
-        if(stoneRectangles.size() >= 2){
-            Rect largestRectangle1 = new Rect();
-            Rect largestRectangle2 = new Rect();
-
-            for(Rect r : stoneRectangles){
-                if(r != null && r.area() > largestRectangle1.area()){
-                    largestRectangle2 = largestRectangle1;
-                    largestRectangle1 = r;
-                } else if(r != null && r.area() > largestRectangle2.area()){
-                    largestRectangle2 = r;
+    public SkystonePosition.Positions getSkystonePosition(boolean ifStopRequested){
+        if (!ifStopRequested) {
+            for (Rect s : stoneRectangles) {
+                if (s == null) {
+                    stoneRectangles.remove(s);
                 }
             }
+            if (stoneRectangles.size() >= 2) {
+                Rect largestRectangle1 = new Rect();
+                Rect largestRectangle2 = new Rect();
 
-            if(skystoneRectangles.size() > 1){
-                Rect largestSkystoneRect = new Rect();
-
-                for(Rect r : skystoneRectangles){
-                    if(r != null && r.area() > largestSkystoneRect.area()){
-                        largestSkystoneRect = r;
+                for (Rect r : stoneRectangles) {
+                    if (r != null && r.area() > largestRectangle1.area()) {
+                        largestRectangle2 = largestRectangle1;
+                        largestRectangle1 = r;
+                    } else if (r != null && r.area() > largestRectangle2.area()) {
+                        largestRectangle2 = r;
                     }
                 }
 
-                double skystoneMidX = (2 * largestSkystoneRect.x + largestSkystoneRect.width)/2.0;
-                double stone1MidX = (2 * largestRectangle1.x + largestSkystoneRect.width)/2.0;
-                double stone2MidX = (2 * largestRectangle2.x+ largestRectangle2.width)/2.0;
+                if (skystoneRectangles.size() > 1) {
+                    Rect largestSkystoneRect = new Rect();
 
-                if(skystoneMidX > stone1MidX && skystoneMidX > stone2MidX){
-                    skystonePosition = SkystonePosition.Positions.RIGHT;
-                } else if(skystoneMidX < stone1MidX && skystoneMidX < stone2MidX){
-                    skystonePosition = SkystonePosition.Positions.LEFT;
-                } else if((skystoneMidX > stone1MidX && skystoneMidX < stone2MidX) || (skystoneMidX < stone1MidX && skystoneMidX > stone2MidX)){
-                    skystonePosition = SkystonePosition.Positions.MIDDLE;
+                    for (Rect r : skystoneRectangles) {
+                        if (r != null && r.area() > largestSkystoneRect.area()) {
+                            largestSkystoneRect = r;
+                        }
+                    }
+
+                    double skystoneMidX = (2 * largestSkystoneRect.x + largestSkystoneRect.width) / 2.0;
+                    double stone1MidX = (2 * largestRectangle1.x + largestSkystoneRect.width) / 2.0;
+                    double stone2MidX = (2 * largestRectangle2.x + largestRectangle2.width) / 2.0;
+
+                    if (skystoneMidX > stone1MidX && skystoneMidX > stone2MidX) {
+                        skystonePosition = SkystonePosition.Positions.RIGHT;
+                    } else if (skystoneMidX < stone1MidX && skystoneMidX < stone2MidX) {
+                        skystonePosition = SkystonePosition.Positions.LEFT;
+                    } else if ((skystoneMidX > stone1MidX && skystoneMidX < stone2MidX) || (skystoneMidX < stone1MidX && skystoneMidX > stone2MidX)) {
+                        skystonePosition = SkystonePosition.Positions.MIDDLE;
+                    }
                 }
-            }
-        } else if(stoneRectangles.size() == 1){
-            Rect largestRectangle1 = new Rect();
+            } else if (stoneRectangles.size() == 1) {
+                Rect largestRectangle1 = new Rect();
 
-            for(Rect r : stoneRectangles){
-                if(r != null && r.area() > largestRectangle1.area()){
-                    largestRectangle1 = r;
-                }
-            }
-
-            if(skystoneRectangles.size() > 1){
-                Rect largestSkystoneRect = new Rect();
-
-                for(Rect r : skystoneRectangles){
-                    if(r != null && r.area() > largestSkystoneRect.area()){
-                        largestSkystoneRect = r;
+                for (Rect r : stoneRectangles) {
+                    if (r != null && r.area() > largestRectangle1.area()) {
+                        largestRectangle1 = r;
                     }
                 }
 
-                double skystoneMidX = (2 * largestSkystoneRect.x + largestSkystoneRect.width)/2.0;
-                double stone1MidX = (2 * largestRectangle1.x + largestSkystoneRect.width)/2.0;
+                if (skystoneRectangles.size() > 1) {
+                    Rect largestSkystoneRect = new Rect();
 
-                if(skystoneMidX > stone1MidX){
-                    skystonePosition = SkystonePosition.Positions.RIGHT;
-                } else if(skystoneMidX < stone1MidX){
-                    skystonePosition = SkystonePosition.Positions.LEFT;
+                    for (Rect r : skystoneRectangles) {
+                        if (r != null && r.area() > largestSkystoneRect.area()) {
+                            largestSkystoneRect = r;
+                        }
+                    }
+
+                    double skystoneMidX = (2 * largestSkystoneRect.x + largestSkystoneRect.width) / 2.0;
+                    double stone1MidX = (2 * largestRectangle1.x + largestSkystoneRect.width) / 2.0;
+
+                    if (skystoneMidX > stone1MidX) {
+                        skystonePosition = SkystonePosition.Positions.RIGHT;
+                    } else if (skystoneMidX < stone1MidX) {
+                        skystonePosition = SkystonePosition.Positions.LEFT;
+                    }
                 }
             }
         }

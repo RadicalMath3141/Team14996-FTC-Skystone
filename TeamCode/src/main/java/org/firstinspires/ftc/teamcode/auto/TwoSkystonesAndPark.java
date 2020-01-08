@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -27,6 +30,7 @@ public class TwoSkystonesAndPark extends LinearOpMode {
     private OpenCvCamera webcam;
     private SkystoneVision skystoneVision;
     private Intake intake;
+    private FtcDashboard dashboard;
 
     //private static final String VUFORIA_KEY =
             //"AWCbAUL/////AAABmTCGXVp6rkoVvke2BiK3+plG3iq3JyLAw1U4hkFLBysmp+/+bioz70swptw8+ZPJY9NZG3QwMRHll+LegUmjekG0ldT7C6BEyui3t8KJYaSMW8xuX98+1gozpyYCaGtacXW8GczYrqtr3EHqz3TIK6z1KGxwEcTVRaZZFklENpS4B8pASzBr8HFmZh8cDdsnRMgLSyDfVx9adMuHoQNh7cSiAu4R6Gp54nClHvpNzwqtPWYYDg1fXY9hfQsjpNQ/Jx9AewkCpYt59Z8UhZ+rrY/Pex9heqe9N2VkwlYIaqmNTnPuxoFlBno2Lx5nzGhLJKcT8Ujq9w5V7P6cLxzHyq+jDymhnkALwPwi3rTILfe8";
@@ -47,15 +51,21 @@ public class TwoSkystonesAndPark extends LinearOpMode {
         drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
         elevator = Elevator.getInstance(hardwareMap);
         intake = Intake.getInstance(hardwareMap);
+        dashboard = FtcDashboard.getInstance();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-
         skystoneVision = new SkystoneVision();
-
-        webcam.openCameraDevice();
-        webcam.setPipeline(skystoneVision);
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+        if(!isStopRequested()){
+            webcam.openCameraDevice();
+            webcam.openCameraDevice();
+            try {
+                webcam.setPipeline(skystoneVision);
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            } catch (Exception e){
+                webcam.openCameraDevice();
+            }
+        }
 
         if(InformationAuto.ifRedAlliance()){
             drive.setPoseEstimate(new Pose2d(-36,-63,Math.toRadians(90)));
@@ -70,23 +80,16 @@ public class TwoSkystonesAndPark extends LinearOpMode {
             updateTelemetry();
         }
 
-        if(isStopRequested()){
-            webcam.closeCameraDevice();
-        }
-
         //Sets up States to be Accurate
         resetTime();
 
         while(!isStopRequested()){
             switch(currentState){
                 case SEARCHING:
-                    if(System.currentTimeMillis() - startTime > 5000){
-                        skystonePosition = SkystonePosition.Positions.RIGHT;
-                    }
                     intake.release();
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
-                        webcam.closeCameraDevice();
+                        webcam.stopStreaming();
                         resetTime();
 
                         //Path to Follow
@@ -105,7 +108,7 @@ public class TwoSkystonesAndPark extends LinearOpMode {
                     break;
 
                 case INTAKING:
-                    if(System.currentTimeMillis() - startTime > 500){
+                    if(System.currentTimeMillis() - startTime > 250){
                         resetTime();
                         currentState = AutoStates.BACKING_UP;
                         drive.followTrajectory(drive.trajectoryBuilder().back(20.0).build());
@@ -116,7 +119,7 @@ public class TwoSkystonesAndPark extends LinearOpMode {
                     if(!drive.isBusy()){
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
-                        drive.followTrajectory(new LoadingZoneToFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                        drive.followTrajectory(new LoadingZoneToFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
                     }
 
                     case GOING_TO_FOUNDATION:
@@ -124,7 +127,7 @@ public class TwoSkystonesAndPark extends LinearOpMode {
                         resetTime();
                         currentState = AutoStates.PLACING_SKYSTONE;
                         intake.open();
-                    } else if(drive.getPoseEstimate().getX() > 0){
+                    } else if(drive.getPoseEstimate().getX() > -6){
                         elevator.setPosition(7.0);
                     }
                     break;
@@ -160,7 +163,6 @@ public class TwoSkystonesAndPark extends LinearOpMode {
             elevator.update();
             updateTelemetry();
         }
-        webcam.closeCameraDevice();
         elevator.stop();
         intake.stop();
     }
@@ -171,7 +173,7 @@ public class TwoSkystonesAndPark extends LinearOpMode {
     }
 
     public void updateTelemetry(){
-        skystonePosition = skystoneVision.getSkystonePosition();
+        skystonePosition = skystoneVision.getSkystonePosition(isStopRequested());
         telemetry.addData("Skystone Position: ", skystonePosition);
 
         Pose2d driveTrainLocation = drive.getPoseEstimate();

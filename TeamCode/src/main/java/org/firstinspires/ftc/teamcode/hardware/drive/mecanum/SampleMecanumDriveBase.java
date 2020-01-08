@@ -37,8 +37,8 @@ import java.util.List;
  */
 @Config
 public abstract class SampleMecanumDriveBase extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0.2, 0, 0.1);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0.7, 0, 0.3);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.4, 0, 0.05);
 
     public enum Mode {
         IDLE,
@@ -64,7 +64,7 @@ public abstract class SampleMecanumDriveBase extends MecanumDrive {
     public SampleMecanumDriveBase() {
         super(kV, kA, kStatic, TRACK_WIDTH);
 
-        //dashboard = FtcDashboard.getInstance();
+        dashboard = FtcDashboard.getInstance();
         clock = NanoClock.system();
 
         mode = Mode.IDLE;
@@ -126,16 +126,16 @@ public abstract class SampleMecanumDriveBase extends MecanumDrive {
         Pose2d currentPose = getPoseEstimate();
         Pose2d lastError = getLastError();
 
-        //TelemetryPacket packet = new TelemetryPacket();
-        //Canvas fieldOverlay = packet.fieldOverlay();
+        TelemetryPacket packet = new TelemetryPacket();
+        Canvas fieldOverlay = packet.fieldOverlay();
 
-        //packet.put("mode", mode);
+        packet.put("mode", mode);
 
-        //packet.put("x", currentPose.getX());
-        //packet.put("y", currentPose.getY());
-        //packet.put("xError", lastError.getX());
-        //packet.put("yError", lastError.getY());
-        //packet.put("headingError", lastError.getHeading());
+        packet.put("x", currentPose.getX());
+        packet.put("y", currentPose.getY());
+        packet.put("xError", lastError.getX());
+        packet.put("yError", lastError.getY());
+        packet.put("headingError", lastError.getHeading());
 
         switch (mode) {
             case IDLE:
@@ -171,16 +171,16 @@ public abstract class SampleMecanumDriveBase extends MecanumDrive {
 
                 Trajectory trajectory = follower.getTrajectory();
 
-                //fieldOverlay.setStrokeWidth(1);
-                //fieldOverlay.setStroke("4CAF50");
-                //DashboardUtil.drawSampledPath(fieldOverlay, trajectory.getPath());
+                fieldOverlay.setStrokeWidth(1);
+                fieldOverlay.setStroke("4CAF50");
+                DashboardUtil.drawSampledPath(fieldOverlay, trajectory.getPath());
 
-                //fieldOverlay.setStroke("#F44336");
+                fieldOverlay.setStroke("#F44336");
                 double t = follower.elapsedTime();
-                //DashboardUtil.drawRobot(fieldOverlay, trajectory.get(t));
+                DashboardUtil.drawRobot(fieldOverlay, trajectory.get(t));
 
-                //fieldOverlay.setStroke("#3F51B5");
-                //fieldOverlay.fillCircle(currentPose.getX(), currentPose.getY(), 3);
+                fieldOverlay.setStroke("#3F51B5");
+                fieldOverlay.fillCircle(currentPose.getX(), currentPose.getY(), 3);
 
                 if (!follower.isFollowing()) {
                     mode = Mode.IDLE;
@@ -191,7 +191,7 @@ public abstract class SampleMecanumDriveBase extends MecanumDrive {
             }
         }
 
-        //dashboard.sendTelemetryPacket(packet);
+        dashboard.sendTelemetryPacket(packet);
     }
 
     public void waitForIdle() {

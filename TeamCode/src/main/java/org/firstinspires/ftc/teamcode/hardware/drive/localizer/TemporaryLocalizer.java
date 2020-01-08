@@ -41,24 +41,24 @@ public class TemporaryLocalizer extends TwoTrackingWheelLocalizer {
     public static double GEAR_RATIO = -2 / 3.0; // output (wheel) speed / input (encoder) speed
 
     public static double LATERAL_DISTANCE = 15; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = 4; // in; offset of the lateral wheel
+    public static double FORWARD_OFFSET = -4; // in; offset of the lateral wheel
 
     private ExpansionHubEx hub;
     private BNO055IMU imu;
 
-    private ExpansionHubMotor leftEncoder, frontEncoder;
+    private ExpansionHubMotor rightEncoder, frontEncoder;
 
     public TemporaryLocalizer(HardwareMap hardwareMap, BNO055IMU imu) {
 
         super(Arrays.asList(
-                new Pose2d(0, LATERAL_DISTANCE / 2, 0), // right
+                new Pose2d(0, -LATERAL_DISTANCE / 2, 0), // right
                 new Pose2d(-FORWARD_OFFSET, -LATERAL_DISTANCE/2, Math.toRadians(90)) // front
         ));
 
         hub = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
 
-        leftEncoder = hardwareMap.get(ExpansionHubMotor.class,"leftFront");
-        frontEncoder = hardwareMap.get(ExpansionHubMotor.class,"leftRear");
+        rightEncoder = hardwareMap.get(ExpansionHubMotor.class,"rightFront");
+        frontEncoder = hardwareMap.get(ExpansionHubMotor.class,"rightRear");
 
         this.imu = imu;
     }
@@ -71,8 +71,8 @@ public class TemporaryLocalizer extends TwoTrackingWheelLocalizer {
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCurrentPosition() * 1.13663852),
-                encoderTicksToInches(-1 * frontEncoder.getCurrentPosition() * 1.149731)
+                encoderTicksToInches(rightEncoder.getCurrentPosition() * 1.13663852),
+                encoderTicksToInches(-1 * frontEncoder.getCurrentPosition() * 1.21277166)
         );
     }
 

@@ -41,29 +41,6 @@ public class InformationAuto extends LinearOpMode {
     }
 
     public void runOpMode() {
-        try {
-            FileInputStream fileIn = new FileInputStream(FILE_NAME);
-            InputStreamReader InputRead = new InputStreamReader(fileIn);
-
-            char[] inputBuffer = new char[100];
-            String s = "";
-            int charRead;
-
-            while ((charRead = InputRead.read(inputBuffer)) > 0) {
-
-                String readstring = String.copyValueOf(inputBuffer, 0, charRead);
-                s += readstring;
-            }
-            InputRead.close();
-            if (s.contains("Red")) {
-                redAlliance = true;
-            } else if (s.contains("Blue")) {
-                redAlliance = false;
-            }
-        } catch (Exception f) {
-            f.printStackTrace();
-        }
-
         while (!isStopRequested()) {
             if (redAlliance) {
                 telemetry.addData("Current Alliance: ", "Red Alliance");
@@ -95,48 +72,11 @@ public class InformationAuto extends LinearOpMode {
                 }
                 break;
             }
-                try {
-                    FileOutputStream fileos = new FileOutputStream(FILE_NAME);
-                    OutputStreamWriter outputWriter = new OutputStreamWriter(fileos);
-                    String s = "";
-                    if (redAlliance) {
-                        s = "Red";
-                    } else {
-                        s = "Blue";
-                    }
-                    outputWriter.write(s);
-                    outputWriter.close();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 telemetry.update();
             }
         }
 
         public static boolean ifRedAlliance () {
-            try {
-                FileInputStream fileIn = new FileInputStream(FILE_NAME);
-                InputStreamReader InputRead = new InputStreamReader(fileIn);
-
-                char[] inputBuffer = new char[100];
-                String s = "";
-                int charRead;
-
-                while ((charRead = InputRead.read(inputBuffer)) > 0) {
-
-                    String readstring = String.copyValueOf(inputBuffer, 0, charRead);
-                    s += readstring;
-                }
-                InputRead.close();
-                if (s.contains("Red")) {
-                    redAlliance = true;
-                } else if (s.contains("Blue")) {
-                    redAlliance = false;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             return redAlliance;
         }
     }

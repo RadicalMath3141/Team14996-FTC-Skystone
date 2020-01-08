@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+
+@Config
 public class FoundationGrabber extends Subsystem {
 
     private static FoundationGrabber foundationGrabber;
@@ -34,7 +37,7 @@ public class FoundationGrabber extends Subsystem {
         }
     }
 
-    Positions currentPosition;
+    Positions currentPosition = Positions.UP_LEFT;
 
     //Perspective is when looking at the robot in the orientation it is in (Forward)
     //Right is being used as 0 for position getting
@@ -57,14 +60,6 @@ public class FoundationGrabber extends Subsystem {
         leftServo = (Servo) hardwareMap.get("leftServo");
         rightTouchSensor = (TouchSensor) hardwareMap.get("rightTouchSensor");
         leftTouchSensor = (TouchSensor) hardwareMap.get("leftTouchSensor");
-        currentPosition = Positions.UP_LEFT;
-        if(currentPosition.equals(Positions.UP_LEFT)){
-            rightServo.setPosition(Positions.UP_RIGHT.getPosition());
-            leftServo.setPosition(Positions.UP_LEFT.getPosition());
-        } else {
-            rightServo.setPosition(Positions.DOWN_RIGHT.getPosition());
-            leftServo.setPosition(Positions.DOWN_LEFT.getPosition());
-        }
     }
 
     public void update(){
@@ -96,6 +91,10 @@ public class FoundationGrabber extends Subsystem {
 
     public void zeroSensors(){
 
+    }
+
+    public Positions getCurrentPosition(){
+        return currentPosition;
     }
 
     public double getRightPosition(){
