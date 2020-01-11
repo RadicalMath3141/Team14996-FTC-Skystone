@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+
+@Config
 public class FoundationGrabber extends Subsystem {
 
     private static FoundationGrabber foundationGrabber;
@@ -34,7 +37,7 @@ public class FoundationGrabber extends Subsystem {
         }
     }
 
-    Positions currentPosition;
+    Positions currentPosition = Positions.UP_LEFT;
 
     //Perspective is when looking at the robot in the orientation it is in (Forward)
     //Right is being used as 0 for position getting

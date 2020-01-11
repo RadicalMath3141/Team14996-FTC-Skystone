@@ -1,11 +1,5 @@
 ---
-poses:
-- x: 36.0
-  y: -48.0
-  heading: 0.0
-- x: 0.0
-  y: -48.0
-  heading: 0.0
+poses: []
 constraints:
   maxVel: 25.0
   maxAccel: 40.0

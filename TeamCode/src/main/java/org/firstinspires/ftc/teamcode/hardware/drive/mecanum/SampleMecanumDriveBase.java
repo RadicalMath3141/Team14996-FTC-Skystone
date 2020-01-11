@@ -37,8 +37,8 @@ import java.util.List;
  */
 @Config
 public abstract class SampleMecanumDriveBase extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0.2, 0, 0.1);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0.7, 0, 0.3);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.4, 0, 0.05);
 
     public enum Mode {
         IDLE,
@@ -46,7 +46,7 @@ public abstract class SampleMecanumDriveBase extends MecanumDrive {
         FOLLOW_TRAJECTORY
     }
 
-    private FtcDashboard dashboard;
+    //private FtcDashboard dashboard;
     private NanoClock clock;
 
     private Mode mode;
@@ -88,6 +88,19 @@ public abstract class SampleMecanumDriveBase extends MecanumDrive {
                 constraints.maxAngVel,
                 constraints.maxAngAccel,
                 constraints.maxAngJerk
+        );
+        turnStart = clock.seconds();
+        mode = Mode.TURN;
+    }
+
+    public void turn(double angle, double maxAngVel, double maxAngAccel, double maxAngJerk){
+        double heading = getPoseEstimate().getHeading();
+        turnProfile = MotionProfileGenerator.generateSimpleMotionProfile(
+                new MotionState(heading, 0, 0, 0),
+                new MotionState(heading + angle, 0, 0, 0),
+                maxAngVel,
+                maxAngAccel,
+                maxAngJerk
         );
         turnStart = clock.seconds();
         mode = Mode.TURN;

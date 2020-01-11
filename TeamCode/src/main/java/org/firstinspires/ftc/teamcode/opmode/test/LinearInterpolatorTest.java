@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.opmode.test;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.path.heading.LinearInterpolator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 
 @Autonomous(name = "Linear Interp Test")
+@Disabled
 public class LinearInterpolatorTest extends LinearOpMode {
 
     SampleMecanumDriveREVOptimized drive;

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -10,9 +12,8 @@ import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveBase;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
-import org.firstinspires.ftc.teamcode.paths.FoundationToMovedFoundation;
-import org.firstinspires.ftc.teamcode.paths.FoundationToSecondSkystone;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundation;
+import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
+import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart2;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToMovedFoundation;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToSkystone;
 import org.firstinspires.ftc.teamcode.paths.MovedFoundationToAllianceBridge;
@@ -22,15 +23,16 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "Two Skystones and Reposition *Experimental*")
-public class TwoSkystonesAndReposition extends LinearOpMode {
+@Autonomous(name = "One Skystone, Reposition, Park")
+public class OneSkystoneAndReposition extends LinearOpMode {
 
     private Elevator elevator;
-    private SampleMecanumDriveBase drive;
+    private SampleMecanumDriveREVOptimized drive;
     private OpenCvCamera webcam;
     private SkystoneVision skystoneVision;
     private Intake intake;
     private FoundationGrabber foundationGrabber;
+    //private FtcDashboard dashboard;
 
     //private static final String VUFORIA_KEY =
     //"AWCbAUL/////AAABmTCGXVp6rkoVvke2BiK3+plG3iq3JyLAw1U4hkFLBysmp+/+bioz70swptw8+ZPJY9NZG3QwMRHll+LegUmjekG0ldT7C6BEyui3t8KJYaSMW8xuX98+1gozpyYCaGtacXW8GczYrqtr3EHqz3TIK6z1KGxwEcTVRaZZFklENpS4B8pASzBr8HFmZh8cDdsnRMgLSyDfVx9adMuHoQNh7cSiAu4R6Gp54nClHvpNzwqtPWYYDg1fXY9hfQsjpNQ/Jx9AewkCpYt59Z8UhZ+rrY/Pex9heqe9N2VkwlYIaqmNTnPuxoFlBno2Lx5nzGhLJKcT8Ujq9w5V7P6cLxzHyq+jDymhnkALwPwi3rTILfe8";
@@ -49,54 +51,73 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
     //0 = About to Arc Out, 1 = Moving Toward Wall
     private int repositionManueverCount = 0;
 
+    //0 is Part 1 , 1 is Part 2
+    private int foundationPart = 0;
+
     public void runOpMode(){
 
-        drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
-        elevator = Elevator.getInstance(hardwareMap);
-        intake = Intake.getInstance(hardwareMap);
-        foundationGrabber = FoundationGrabber.getInstance(hardwareMap);
+        if(!isStopRequested()){
+            drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
+        }
+        if(!isStopRequested()){
+            elevator = Elevator.getInstance(hardwareMap);
+        }
+        if(!isStopRequested()){
+            intake = Intake.getInstance(hardwareMap);
+        }
+
+        if(!isStopRequested()){
+            foundationGrabber = FoundationGrabber.getInstance(hardwareMap);
+        }
+        //dashboard = FtcDashboard.getInstance();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-
         skystoneVision = new SkystoneVision();
-
-        webcam.openCameraDevice();
-        webcam.setPipeline(skystoneVision);
-        webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+        if(!isStopRequested()){
+            webcam.openCameraDevice();
+            webcam.openCameraDevice();
+            try {
+                webcam.setPipeline(skystoneVision);
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            } catch (Exception e){
+                webcam.openCameraDevice();
+            }
+        }
 
         if(InformationAuto.ifRedAlliance()){
-            drive.setPoseEstimate(new Pose2d(-39,-63,Math.toRadians(90)));
+            drive.setPoseEstimate(new Pose2d(-36,-63,Math.toRadians(90)));
         } else {
-            drive.setPoseEstimate(new Pose2d(-39,63,Math.toRadians(-90)));
+            drive.setPoseEstimate(new Pose2d(-32,63,Math.toRadians(-90)));
         }
 
         while(!isStarted() && !isStopRequested()){
+            if(isStopRequested()){
+                webcam.stopStreaming();
+            }
             updateTelemetry();
-        }
-
-        if(isStopRequested()){
-            webcam.closeCameraDevice();
         }
 
         //Sets up States to be Accurate
         resetTime();
+        elevator.setZero();
 
         while(!isStopRequested()){
             switch(currentState){
                 case SEARCHING:
-                    if(System.currentTimeMillis() - startTime > 500){
-                        skystonePosition = SkystonePosition.Positions.RIGHT;
-                    }
                     intake.release();
+                    sleep(20);
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
-                        webcam.closeCameraDevice();
+                        webcam.stopStreaming();
                         resetTime();
 
                         //Path to Follow
-                        drive.followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
+                        drive.followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(), drive).toTrajectory(skystonePosition));
                         break;
+                    }
+                    if(skystonePosition == SkystonePosition.Positions.UNKNOWN && System.currentTimeMillis() - startTime > 500){
+                        skystonePosition = SkystonePosition.Positions.MIDDLE;
                     }
                     break;
 
@@ -122,18 +143,24 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
                         if(!isFirstStoneDone){
-                            drive.followTrajectory(new LoadingZoneToFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                            drive.followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), drive).toTrajectory(skystonePosition));
                         } else {
-                            drive.followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                            drive.followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),drive).toTrajectory());
                         }
                     }
 
                 case GOING_TO_FOUNDATION:
                     if(!drive.isBusy()){
-                        resetTime();
-                        currentState = AutoStates.PLACING_SKYSTONE;
-                        intake.open();
-                    } else if(drive.getPoseEstimate().getX() > 0){
+                        if(foundationPart == 0){
+                            drive.followTrajectory(new LoadingZoneToFoundationPart2(InformationAuto.ifRedAlliance(),drive).toTrajectory());
+                            ++foundationPart;
+                        } else if(foundationPart == 1){
+                            resetTime();
+                            ++foundationPart;
+                            currentState = AutoStates.PLACING_SKYSTONE;
+                            intake.open();
+                        }
+                    } else if(drive.getPoseEstimate().getX() > -6){
                         elevator.setPosition(4.0);
                     }
                     break;
@@ -141,11 +168,10 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                 case PLACING_SKYSTONE:
                     if(System.currentTimeMillis() - startTime > 250){
                         resetTime();
-                        elevator.setPosition(0.0);
                         if(!isFirstStoneDone){
                             isFirstStoneDone = true;
                             currentState = AutoStates.REPOSITIONING;
-                            drive.turn(Math.toRadians(180));
+                            drive.followTrajectory(drive.trajectoryBuilder().back(9.0).build());
                         } else {
                             currentState = AutoStates.GOING_TO_PARK;
                             drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), (SampleMecanumDriveREVOptimized) drive).toTrajectory());
@@ -155,18 +181,48 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
                 case REPOSITIONING:
                     if(!drive.isBusy()){
-                        if(repositionManueverCount == 0) {
+                        System.out.println(repositionManueverCount);
+                        if(repositionManueverCount == 0){
+                            if(InformationAuto.ifRedAlliance()){
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(-90)));
+                            } else {
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(90)));
+                            }
+                            elevator.setPosition(0.0);
                             ++repositionManueverCount;
+                        } else if(repositionManueverCount == 1) {
+                            ++repositionManueverCount;
+                            drive.followTrajectory(drive.trajectoryBuilder().back(12).build());
+                            resetTime();
+                        } else if(repositionManueverCount == 2) {
                             foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.DOWN_LEFT);
-                            drive.followTrajectory(new FoundationToMovedFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory());
-                        } else if(repositionManueverCount == 1){
+                            if (System.currentTimeMillis() - startTime > 2000) {
+                                TrajectoryBuilder trajectoryBuilder = new TrajectoryBuilder(drive.getPoseEstimate(), new DriveConstraints(20.0, 20.0, 0.0,
+                                        Math.toRadians(180.0), Math.toRadians(180.0), 0.0));
+                                drive.followTrajectory(trajectoryBuilder.forward(30.0).build());
+                                ++repositionManueverCount;
+                            }
+                        } else if(repositionManueverCount == 3) {
+                            if (InformationAuto.ifRedAlliance()) {
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(90),Math.toRadians(90),Math.toRadians(0));
+                            } else {
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(90),Math.toRadians(90),Math.toRadians(0));
+                            }
                             ++repositionManueverCount;
-                            drive.followTrajectory(drive.trajectoryBuilder().back(22).build());
+                            resetTime();
+                        } else if(repositionManueverCount == 4) {
+                            foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
+                            if (System.currentTimeMillis() - startTime > 500) {
+                                drive.followTrajectory(drive.trajectoryBuilder().back(20.0).build());
+                                foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
+                                ++repositionManueverCount;
+                            }
+                        } else if(repositionManueverCount == 5){
+                            ++repositionManueverCount;
                         } else {
                             resetTime();
-                            foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
-                            currentState = AutoStates.GOING_TO_SECOND_SKYSTONE;
-                            drive.followTrajectory(new FoundationToSecondSkystone(InformationAuto.ifRedAlliance(), (SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
+                            currentState = AutoStates.GOING_TO_PARK;
+                            drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), drive).toTrajectory());
                         }
                     }
                     break;
@@ -176,8 +232,6 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         resetTime();
                         currentState = AutoStates.INTAKING;
                         intake.setGrabbing();
-                    } else if(drive.getPoseEstimate().getX() <= 36){
-                        foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
                     }
                     break;
 
@@ -185,16 +239,13 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                     break;
 
             }
-            intake.update();
             drive.update();
-            foundationGrabber.update();
             elevator.update();
             updateTelemetry();
         }
         webcam.closeCameraDevice();
         elevator.stop();
         intake.stop();
-        foundationGrabber.stop();
     }
 
 
@@ -203,8 +254,12 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
     }
 
     public void updateTelemetry(){
-        skystonePosition = skystoneVision.getSkystonePosition();
-        telemetry.addData("Skystone Position: ", skystonePosition);
+        try {
+            skystonePosition = skystoneVision.getSkystonePosition(isStopRequested());
+            telemetry.addData("Skystone Position: ", skystonePosition);
+        } catch (Exception e){
+
+        }
 
         Pose2d driveTrainLocation = drive.getPoseEstimate();
 
@@ -213,10 +268,9 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
         telemetry.addData("Drivetrain Heading: ", Math.toDegrees(driveTrainLocation.getHeading()));
 
         telemetry.addData("Elevator Height: ", elevator.getRelativeHeight());
+        telemetry.addData("Elevator Encoder: ", elevator.getEncoderPosition());
 
         telemetry.update();
     }
-
-
 
 }

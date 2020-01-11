@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.hardware.drive.mecanum;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.teamcode.hardware.drive.localizer.CustomOdometry;
 import org.firstinspires.ftc.teamcode.hardware.drive.localizer.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.hardware.drive.localizer.TemporaryLocalizer;
 import org.firstinspires.ftc.teamcode.util.AxesSigns;
@@ -57,7 +60,13 @@ public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        imu.initialize(parameters);
+        try {
+            imu.initialize(parameters);
+        } catch (Exception e){
+            imu = hardwareMap.get(BNO055IMU.class, "imu");
+        } finally {
+            imu.initialize(parameters);
+        }
 
         BNO055IMUUtil.remapAxes(imu, AxesOrder.XYZ, AxesSigns.NPN);
 
@@ -76,8 +85,9 @@ public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
 
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
-        setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
-        //setLocalizer(new TemporaryLocalizer(hardwareMap, imu));
+        //setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
+        setLocalizer(new TemporaryLocalizer(hardwareMap, imu));
+        //setLocalizer(new CustomOdometry(hardwareMap));
     }
 
     @Override

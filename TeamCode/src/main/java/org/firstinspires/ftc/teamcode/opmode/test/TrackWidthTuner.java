@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveR
  */
 @Config
 @Autonomous(group = "drive")
+@Disabled
 public class TrackWidthTuner extends LinearOpMode {
     public static double ANGLE = Math.toRadians(180);
     public static int NUM_TRIALS = 5;
