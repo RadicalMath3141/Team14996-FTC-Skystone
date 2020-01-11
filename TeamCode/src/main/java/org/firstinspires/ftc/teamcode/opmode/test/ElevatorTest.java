@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.util.OmegaGamepad;
 
 @TeleOp(name = "Elevator Test")
 @Config
+@Disabled
 public class ElevatorTest extends LinearOpMode {
     public static double goalHeight = 10;
 

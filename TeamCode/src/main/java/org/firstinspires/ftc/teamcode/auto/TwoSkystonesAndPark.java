@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.canvas.Canvas;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -13,7 +11,7 @@ import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveB
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 import org.firstinspires.ftc.teamcode.hardware.Elevator;
 import org.firstinspires.ftc.teamcode.paths.FoundationToSecondSkystone;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundation;
+import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToSkystone;
 import org.firstinspires.ftc.teamcode.paths.MovedFoundationToAllianceBridge;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
@@ -119,7 +117,7 @@ public class TwoSkystonesAndPark extends LinearOpMode {
                     if(!drive.isBusy()){
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
-                        drive.followTrajectory(new LoadingZoneToFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
+                        drive.followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
                     }
 
                     case GOING_TO_FOUNDATION:

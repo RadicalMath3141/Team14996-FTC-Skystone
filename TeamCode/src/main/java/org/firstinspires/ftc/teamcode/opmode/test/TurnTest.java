@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveR
  */
 @Config
 @Autonomous(group = "drive")
+@Disabled
 public class TurnTest extends LinearOpMode {
     public static double ANGLE = 90;
 

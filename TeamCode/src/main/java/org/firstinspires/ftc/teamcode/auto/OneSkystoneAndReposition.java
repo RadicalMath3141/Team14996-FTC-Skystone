@@ -1,9 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import android.annotation.TargetApi;
-import android.util.Log;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
+import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -13,24 +12,22 @@ import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveBase;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
-import org.firstinspires.ftc.teamcode.paths.FoundationToMovedFoundation;
-import org.firstinspires.ftc.teamcode.paths.FoundationToSecondSkystone;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundation;
+import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
+import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart2;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToMovedFoundation;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToSkystone;
 import org.firstinspires.ftc.teamcode.paths.MovedFoundationToAllianceBridge;
-import org.firstinspires.ftc.teamcode.paths.MovedFoundationToSecondSkystone;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
 import org.firstinspires.ftc.teamcode.vision.SkystoneVision;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "Two Skystones and Reposition *Experimental*")
-public class TwoSkystonesAndReposition extends LinearOpMode {
+@Autonomous(name = "One Skystone, Reposition, Park")
+public class OneSkystoneAndReposition extends LinearOpMode {
 
     private Elevator elevator;
-    private SampleMecanumDriveBase drive;
+    private SampleMecanumDriveREVOptimized drive;
     private OpenCvCamera webcam;
     private SkystoneVision skystoneVision;
     private Intake intake;
@@ -53,6 +50,9 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
     //0 = About to Arc Out, 1 = Moving Toward Wall
     private int repositionManueverCount = 0;
+
+    //0 is Part 1 , 1 is Part 2
+    private int foundationPart = 0;
 
     public void runOpMode(){
 
@@ -113,8 +113,11 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         resetTime();
 
                         //Path to Follow
-                        drive.followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
+                        drive.followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(), drive).toTrajectory(skystonePosition));
                         break;
+                    }
+                    if(skystonePosition == SkystonePosition.Positions.UNKNOWN && System.currentTimeMillis() - startTime > 500){
+                        skystonePosition = SkystonePosition.Positions.MIDDLE;
                     }
                     break;
 
@@ -140,17 +143,23 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
                         if(!isFirstStoneDone){
-                            drive.followTrajectory(new LoadingZoneToFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory(skystonePosition));
+                            drive.followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), drive).toTrajectory(skystonePosition));
                         } else {
-                            drive.followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),(SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                            drive.followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),drive).toTrajectory());
                         }
                     }
 
                 case GOING_TO_FOUNDATION:
                     if(!drive.isBusy()){
-                        resetTime();
-                        currentState = AutoStates.PLACING_SKYSTONE;
-                        intake.open();
+                        if(foundationPart == 0){
+                            drive.followTrajectory(new LoadingZoneToFoundationPart2(InformationAuto.ifRedAlliance(),drive).toTrajectory());
+                            ++foundationPart;
+                        } else if(foundationPart == 1){
+                            resetTime();
+                            ++foundationPart;
+                            currentState = AutoStates.PLACING_SKYSTONE;
+                            intake.open();
+                        }
                     } else if(drive.getPoseEstimate().getX() > -6){
                         elevator.setPosition(4.0);
                     }
@@ -159,7 +168,6 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                 case PLACING_SKYSTONE:
                     if(System.currentTimeMillis() - startTime > 250){
                         resetTime();
-                        elevator.setPosition(0.0);
                         if(!isFirstStoneDone){
                             isFirstStoneDone = true;
                             currentState = AutoStates.REPOSITIONING;
@@ -180,6 +188,7 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                             } else {
                                 drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(90)));
                             }
+                            elevator.setPosition(0.0);
                             ++repositionManueverCount;
                         } else if(repositionManueverCount == 1) {
                             ++repositionManueverCount;
@@ -188,14 +197,16 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         } else if(repositionManueverCount == 2) {
                             foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.DOWN_LEFT);
                             if (System.currentTimeMillis() - startTime > 2000) {
-                                drive.followTrajectory(new FoundationToMovedFoundation(InformationAuto.ifRedAlliance(), (SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                                TrajectoryBuilder trajectoryBuilder = new TrajectoryBuilder(drive.getPoseEstimate(), new DriveConstraints(20.0, 20.0, 0.0,
+                                        Math.toRadians(180.0), Math.toRadians(180.0), 0.0));
+                                drive.followTrajectory(trajectoryBuilder.forward(30.0).build());
                                 ++repositionManueverCount;
                             }
                         } else if(repositionManueverCount == 3) {
                             if (InformationAuto.ifRedAlliance()) {
-                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(-45)));
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(90),Math.toRadians(90),Math.toRadians(0));
                             } else {
-                                drive.turn((drive.getPoseEstimate().getHeading() - Math.toRadians(-45)));
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(90),Math.toRadians(90),Math.toRadians(0));
                             }
                             ++repositionManueverCount;
                             resetTime();
@@ -211,7 +222,7 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         } else {
                             resetTime();
                             currentState = AutoStates.GOING_TO_PARK;
-                            drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), (SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                            drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), drive).toTrajectory());
                         }
                     }
                     break;

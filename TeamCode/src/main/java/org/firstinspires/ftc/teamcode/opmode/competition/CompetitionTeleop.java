@@ -151,7 +151,7 @@ public class CompetitionTeleop extends LinearOpMode {
         Double velocityR = pose.getHeading();
 
         double anglePowerCorrection = 0;
-        if (velocityR < 0.05 && velocityR > -0.05) {
+        if (velocityR < 0.05 && velocityR > -0.05 && !((velocityX <= 0.05 && velocityX >= -0.05) && (velocityY <= 0.05 && velocityY >= -0.05))) {
             if (!ifStartingAngle) {
                 ifStartingAngle = true;
                 startingAngle = drive.getPoseEstimate().getHeading();
