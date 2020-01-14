@@ -86,7 +86,7 @@ public class OneSkystoneAndReposition extends LinearOpMode {
         }
 
         if(InformationAuto.ifRedAlliance()){
-            drive.setPoseEstimate(new Pose2d(-36,-63,Math.toRadians(90)));
+            drive.setPoseEstimate(new Pose2d(-32,-63,Math.toRadians(90)));
         } else {
             drive.setPoseEstimate(new Pose2d(-32,63,Math.toRadians(-90)));
         }
@@ -160,8 +160,8 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                             currentState = AutoStates.PLACING_SKYSTONE;
                             intake.open();
                         }
-                    } else if(drive.getPoseEstimate().getX() > -6){
-                        elevator.setPosition(4.0);
+                    } else if(drive.getPoseEstimate().getX() > 0){
+                        elevator.setPosition(6.0);
                     }
                     break;
 
@@ -171,10 +171,10 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                         if(!isFirstStoneDone){
                             isFirstStoneDone = true;
                             currentState = AutoStates.REPOSITIONING;
-                            drive.followTrajectory(drive.trajectoryBuilder().back(9.0).build());
+                            drive.followTrajectory(drive.trajectoryBuilder().back(9).build());
                         } else {
                             currentState = AutoStates.GOING_TO_PARK;
-                            drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), (SampleMecanumDriveREVOptimized) drive).toTrajectory());
+                            drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), drive).toTrajectory());
                         }
                     }
                     break;
@@ -192,21 +192,21 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                             ++repositionManueverCount;
                         } else if(repositionManueverCount == 1) {
                             ++repositionManueverCount;
-                            drive.followTrajectory(drive.trajectoryBuilder().back(12).build());
+                            drive.followTrajectory(drive.trajectoryBuilder().back(15).build());
                             resetTime();
                         } else if(repositionManueverCount == 2) {
                             foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.DOWN_LEFT);
                             if (System.currentTimeMillis() - startTime > 2000) {
-                                TrajectoryBuilder trajectoryBuilder = new TrajectoryBuilder(drive.getPoseEstimate(), new DriveConstraints(20.0, 20.0, 0.0,
+                                TrajectoryBuilder trajectoryBuilder = new TrajectoryBuilder(drive.getPoseEstimate(), new DriveConstraints(30.0, 20.0, 0.0,
                                         Math.toRadians(180.0), Math.toRadians(180.0), 0.0));
-                                drive.followTrajectory(trajectoryBuilder.forward(30.0).build());
+                                drive.followTrajectory(trajectoryBuilder.forward(40).build());
                                 ++repositionManueverCount;
                             }
                         } else if(repositionManueverCount == 3) {
                             if (InformationAuto.ifRedAlliance()) {
-                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(90),Math.toRadians(90),Math.toRadians(0));
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(90)),Math.toRadians(180),Math.toRadians(110),Math.toRadians(0));
                             } else {
-                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(90),Math.toRadians(90),Math.toRadians(0));
+                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(280)),Math.toRadians(180),Math.toRadians(110),Math.toRadians(0));
                             }
                             ++repositionManueverCount;
                             resetTime();

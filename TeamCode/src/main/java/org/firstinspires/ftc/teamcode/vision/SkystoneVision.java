@@ -224,6 +224,89 @@ public class SkystoneVision extends OpenCvPipeline {
         return output;
     }
 
+    public int numSkystones(){
+        return skystoneRectangles.size();
+    }
+
+    public int numStones(){
+        return stoneRectangles.size();
+    }
+
+    public double getSkystoneMidX(){
+        Rect largestRectangle1 = new Rect();
+        Rect largestRectangle2 = new Rect();
+
+        for (Rect r : stoneRectangles) {
+            if (r != null && r.area() > largestRectangle1.area()) {
+                largestRectangle2 = largestRectangle1;
+                largestRectangle1 = r;
+            } else if (r != null && r.area() > largestRectangle2.area()) {
+                largestRectangle2 = r;
+            }
+        }
+
+        Rect largestSkystoneRect = new Rect();
+
+        for (Rect r : skystoneRectangles) {
+            if (r != null && r.area() > largestSkystoneRect.area()) {
+                largestSkystoneRect = r;
+            }
+        }
+
+        double skystoneMidX = (2 * largestSkystoneRect.x + largestSkystoneRect.width) / 2.0;
+        return skystoneMidX;
+    }
+
+    public double getRectangle1X(){
+        Rect largestRectangle1 = new Rect();
+        Rect largestRectangle2 = new Rect();
+
+        for (Rect r : stoneRectangles) {
+            if (r != null && r.area() > largestRectangle1.area()) {
+                largestRectangle2 = largestRectangle1;
+                largestRectangle1 = r;
+            } else if (r != null && r.area() > largestRectangle2.area()) {
+                largestRectangle2 = r;
+            }
+        }
+
+        Rect largestSkystoneRect = new Rect();
+
+        for (Rect r : skystoneRectangles) {
+            if (r != null && r.area() > largestSkystoneRect.area()) {
+                largestSkystoneRect = r;
+            }
+        }
+
+        double stone1MidX = (2 * largestRectangle1.x + largestSkystoneRect.width) / 2.0;
+        return stone1MidX;
+    }
+
+    public double getRectangle2X(){
+        Rect largestRectangle1 = new Rect();
+        Rect largestRectangle2 = new Rect();
+
+        for (Rect r : stoneRectangles) {
+            if (r != null && r.area() > largestRectangle1.area()) {
+                largestRectangle2 = largestRectangle1;
+                largestRectangle1 = r;
+            } else if (r != null && r.area() > largestRectangle2.area()) {
+                largestRectangle2 = r;
+            }
+        }
+
+        Rect largestSkystoneRect = new Rect();
+
+        for (Rect r : skystoneRectangles) {
+            if (r != null && r.area() > largestSkystoneRect.area()) {
+                largestSkystoneRect = r;
+            }
+        }
+
+        double stone2MidX = (2 * largestRectangle2.x + largestRectangle2.width) / 2.0;
+        return stone2MidX;
+    }
+
     public SkystonePosition.Positions getSkystonePosition(boolean ifStopRequested){
         if (!ifStopRequested) {
             for (Rect s : stoneRectangles) {
@@ -244,7 +327,7 @@ public class SkystoneVision extends OpenCvPipeline {
                     }
                 }
 
-                if (skystoneRectangles.size() > 1) {
+                if (skystoneRectangles.size() >= 1.0) {
                     Rect largestSkystoneRect = new Rect();
 
                     for (Rect r : skystoneRectangles) {
@@ -274,7 +357,7 @@ public class SkystoneVision extends OpenCvPipeline {
                     }
                 }
 
-                if (skystoneRectangles.size() > 1) {
+                if (skystoneRectangles.size() >= 1) {
                     Rect largestSkystoneRect = new Rect();
 
                     for (Rect r : skystoneRectangles) {

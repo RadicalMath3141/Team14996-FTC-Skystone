@@ -28,7 +28,6 @@ public class CompetitionTeleop extends LinearOpMode {
     private Intake intake;
     private FoundationGrabber foundationGrabber;
     private Superstructure superstructure;
-    private FtcDashboard dashboard;
 
     public static double angleCorrection = 0.03;
     private double startingAngle = 0;
@@ -40,7 +39,6 @@ public class CompetitionTeleop extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        dashboard = FtcDashboard.getInstance();
         drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
         elevator = Elevator.getInstance(hardwareMap);
         intake = Intake.getInstance(hardwareMap);
@@ -73,6 +71,11 @@ public class CompetitionTeleop extends LinearOpMode {
             }
             if (gamepad2.b) {
                 intake.open();
+                superstructure.setManual();
+            }
+
+            if(gamepad2.x){
+                intake.setCapstonePosition();
                 superstructure.setManual();
             }
 
@@ -109,20 +112,6 @@ public class CompetitionTeleop extends LinearOpMode {
             driverPad.update();
             superstructure.update();
             drive.update();
-
-            Pose2d currentPose = drive.getPoseEstimate();
-            Pose2d lastError = drive.getLastError();
-
-            TelemetryPacket packet = new TelemetryPacket();
-            Canvas fieldOverlay = packet.fieldOverlay();
-
-            packet.put("x", currentPose.getX());
-            packet.put("y", currentPose.getY());
-            packet.put("heading", currentPose.getHeading());
-
-            fieldOverlay.setStroke("#3F51B5");
-            fieldOverlay.fillCircle(currentPose.getX(), currentPose.getY(), 3);
-            dashboard.sendTelemetryPacket(packet);
         }
         elevator.stop();
         intake.stop();

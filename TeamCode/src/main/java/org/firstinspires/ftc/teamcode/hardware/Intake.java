@@ -19,6 +19,7 @@ public class Intake extends Subsystem{
     public static double releasePosition = 0.3;
     public static double grabPosition = 0.3;
     public static double stoneHoldPosition = 0.9;
+    public static double capstonePosition = 0.6;
 
     public enum State {
         RELEASING, GRABBING, OPEN
@@ -60,6 +61,10 @@ public class Intake extends Subsystem{
 
     public void setHold(){
         releaseServo.setPosition(holdPosition);
+    }
+
+    public void setCapstonePosition(){
+        grabberServo.setPosition(capstonePosition);
     }
 
 
