@@ -146,8 +146,4 @@ public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
     public double getRawExternalHeading() {
         return imu.getAngularOrientation().firstAngle;
     }
-
-    public void resetAngle(){
-
-    }
 }

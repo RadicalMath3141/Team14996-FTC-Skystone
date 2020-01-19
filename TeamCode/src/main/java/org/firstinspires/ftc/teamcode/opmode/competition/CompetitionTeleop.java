@@ -65,24 +65,29 @@ public class CompetitionTeleop extends LinearOpMode {
             }
 
             //Intake Control
-            if (gamepad2.a) {
+            if (buttonPad.ifOnceA()) {
                 intake.setGrabbing();
                 superstructure.setManual();
             }
-            if (gamepad2.b) {
+            if (buttonPad.ifOnceB()) {
                 intake.open();
                 superstructure.setManual();
             }
 
-            if(gamepad2.x){
-                intake.setCapstonePosition();
+            if(buttonPad.ifOnceX()){
+                intake.holdCapstone();
+                superstructure.setManual();
+            }
+
+            if(buttonPad.ifOnceY()){
+                intake.releaseCapstone();
                 superstructure.setManual();
             }
 
             //Elevator Control
             if(gamepad2.left_stick_y > 0.05 || gamepad2.left_stick_y < -0.05){
                 superstructure.setManual();
-                elevator.setMotorPowers(gamepad2.left_stick_y);
+                elevator.setMotorPowers(-gamepad2.left_stick_y);
             } else {
                 if(superstructure.getCurrentState() == Superstructure.SystemState.MANUAL){
                     elevator.setMotorPowers(gamepad2.left_stick_y);

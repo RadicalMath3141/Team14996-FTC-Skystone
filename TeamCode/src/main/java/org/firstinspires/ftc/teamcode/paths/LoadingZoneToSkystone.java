@@ -20,20 +20,20 @@ public class LoadingZoneToSkystone {
     public Trajectory toTrajectory (SkystonePosition.Positions skystonePosition){
         if(redAlliance){
             if(skystonePosition == SkystonePosition.Positions.LEFT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-43,-32,Math.toRadians(90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-43,-25,Math.toRadians(90))).build();
             } else if(skystonePosition == SkystonePosition.Positions.MIDDLE){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-35,-32,Math.toRadians(90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-35,-25,Math.toRadians(90))).build();
             } else if(skystonePosition == SkystonePosition.Positions.RIGHT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-28,-32,Math.toRadians(90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-28,-25,Math.toRadians(90))).build();
             }
 
         } else {
             if(skystonePosition == SkystonePosition.Positions.RIGHT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-47,32,Math.toRadians(-90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-44,25,Math.toRadians(-90))).build();
             } else if(skystonePosition == SkystonePosition.Positions.MIDDLE){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-35,32,Math.toRadians(-90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-32,25,Math.toRadians(-90))).build();
             } else if(skystonePosition == SkystonePosition.Positions.LEFT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-28,32,Math.toRadians(-90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-25,25,Math.toRadians(-90))).build();
             }
         }
         return drive.trajectoryBuilder().splineTo(new Pose2d(-45,-36,Math.toRadians(90))).build();

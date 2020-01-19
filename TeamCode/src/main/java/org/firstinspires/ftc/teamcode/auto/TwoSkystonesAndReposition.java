@@ -10,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.hardware.Elevator;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Intake;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveBase;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart2;
@@ -23,8 +22,8 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "One Skystone, Reposition, Park")
-public class OneSkystoneAndReposition extends LinearOpMode {
+@Autonomous(name = "Two Skystones, Reposition, Park")
+public class TwoSkystonesAndReposition extends LinearOpMode {
 
     private Elevator elevator;
     private SampleMecanumDriveREVOptimized drive;
@@ -69,6 +68,7 @@ public class OneSkystoneAndReposition extends LinearOpMode {
         if(!isStopRequested()){
             foundationGrabber = FoundationGrabber.getInstance(hardwareMap);
         }
+        //dashboard = FtcDashboard.getInstance();
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -105,6 +105,7 @@ public class OneSkystoneAndReposition extends LinearOpMode {
             switch(currentState){
                 case SEARCHING:
                     intake.release();
+                    sleep(20);
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
                         webcam.stopStreaming();
@@ -195,7 +196,9 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                         } else if(repositionManueverCount == 2) {
                             foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.DOWN_LEFT);
                             if (System.currentTimeMillis() - startTime > 2000) {
-                                drive.followTrajectory(drive.trajectoryBuilder().forward(30).build());
+                                TrajectoryBuilder trajectoryBuilder = new TrajectoryBuilder(drive.getPoseEstimate(), new DriveConstraints(30.0, 20.0, 0.0,
+                                        Math.toRadians(180.0), Math.toRadians(180.0), 0.0));
+                                drive.followTrajectory(trajectoryBuilder.forward(40).build());
                                 ++repositionManueverCount;
                             }
                         } else if(repositionManueverCount == 3) {
