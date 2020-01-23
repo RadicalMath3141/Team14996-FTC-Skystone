@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
-public class Intake extends Subsystem{
+public class Intake implements Subsystem{
 
     private static Intake intake;
 

@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.util.Comparison;
 
 @Config
-public class Elevator extends Subsystem {
+public class Elevator implements Subsystem {
 
     private DcMotor elevatorMotor;
     private DigitalChannel magneticLimitSwitch;

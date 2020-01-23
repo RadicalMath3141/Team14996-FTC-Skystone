@@ -8,6 +8,7 @@ public class OmegaGamepad {
     private int a, b, x, y = 0;
     private int dpadRight, dpadLeft, dpadDown, dpadUp = 0;
     private int rightBumper, leftBumper = 0;
+    private int rightTrigger, leftTrigger = 0;
 
     public OmegaGamepad(Gamepad gamepad){
         this.gamepad = gamepad;
@@ -74,6 +75,17 @@ public class OmegaGamepad {
             leftBumper = 0;
         }
 
+        if(gamepad.right_trigger > 0){
+            ++rightTrigger;
+        } else {
+            rightTrigger = 0;
+        }
+
+        if(gamepad.left_trigger > 0){
+            ++leftTrigger;
+        } else {
+            leftTrigger = 0;
+        }
     }
 
     public boolean ifA(){
@@ -215,5 +227,35 @@ public class OmegaGamepad {
         }
         return false;
     }
+
+    public boolean ifRightTrigger(){
+        if(rightTrigger > 0){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean ifOnceRightTrigger(){
+        if(rightTrigger == 1){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean ifLeftTrigger(){
+        if(leftTrigger > 0){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean ifOnceLeftTrigger(){
+        if(leftTrigger == 1){
+            return true;
+        }
+        return false;
+    }
+
+
 
 }

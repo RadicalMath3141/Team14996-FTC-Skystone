@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 @Config
-public class FoundationGrabber extends Subsystem {
+public class FoundationGrabber implements Subsystem {
 
     private static FoundationGrabber foundationGrabber;
 
@@ -20,19 +20,27 @@ public class FoundationGrabber extends Subsystem {
     public enum Positions implements PositionGetter{
         UP_RIGHT {
             public double getPosition() {
-                return 0.50;
+                return 0.1;
             }
         }, UP_LEFT{
             public double getPosition() {
-                return 0.85;
+                return 1;
             }
         }, DOWN_RIGHT {
             public double getPosition() {
-                return 0.85;
+                return 0.6;
             }
         }, DOWN_LEFT{
             public double getPosition() {
                 return 0.50;
+            }
+        }, READY_RIGHT{
+            public double getPosition(){
+                return 0.4;
+            }
+        }, READY_LEFT{
+            public double getPosition(){
+                return 0.6;
             }
         }
     }
@@ -44,8 +52,6 @@ public class FoundationGrabber extends Subsystem {
     //Left is being used as 1 for position getting
     private Servo rightServo; //Port 1, ExpansionHub 1
     private Servo leftServo; //Port 2, ExpansionHub 1
-    private TouchSensor rightTouchSensor;
-    private TouchSensor leftTouchSensor;
 
 
     public static FoundationGrabber getInstance(HardwareMap hardwareMap){
@@ -58,8 +64,6 @@ public class FoundationGrabber extends Subsystem {
     public FoundationGrabber(HardwareMap hardwareMap){
         rightServo = (Servo) hardwareMap.get("rightServo");
         leftServo = (Servo) hardwareMap.get("leftServo");
-        rightTouchSensor = (TouchSensor) hardwareMap.get("rightTouchSensor");
-        leftTouchSensor = (TouchSensor) hardwareMap.get("leftTouchSensor");
     }
 
     public void update(){
@@ -88,6 +92,11 @@ public class FoundationGrabber extends Subsystem {
         }
     }
 
+    public void getReadyToGrab(){
+        rightServo.setPosition(Positions.READY_RIGHT.getPosition());
+        leftServo.setPosition(Positions.READY_LEFT.getPosition());
+    }
+
 
     public void zeroSensors(){
 
@@ -105,19 +114,4 @@ public class FoundationGrabber extends Subsystem {
         return leftServo.getPosition();
     }
 
-    public boolean isLinedUpWithFoundation(){
-        return leftTouchSensor.isPressed() && rightTouchSensor.isPressed();
-    }
-
-    public int headingNeededToTurn(){
-        if(isLinedUpWithFoundation() || (!leftTouchSensor.isPressed() && !rightTouchSensor.isPressed())){
-            return 0;
-        }
-        if(rightTouchSensor.isPressed() && !leftTouchSensor.isPressed()){
-            return 1;
-        } else if(!rightTouchSensor.isPressed() && leftTouchSensor.isPressed()){
-            return -1;
-        }
-        return 0;
-    }
 }

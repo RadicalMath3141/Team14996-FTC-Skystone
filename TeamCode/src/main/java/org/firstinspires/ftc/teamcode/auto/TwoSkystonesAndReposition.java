@@ -4,13 +4,12 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.hardware.Elevator;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
-import org.firstinspires.ftc.teamcode.hardware.Intake;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart2;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToMovedFoundation;
@@ -23,18 +22,13 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous(name = "Two Skystones, Reposition, Park")
+@Disabled
 public class TwoSkystonesAndReposition extends LinearOpMode {
 
-    private Elevator elevator;
-    private SampleMecanumDriveREVOptimized drive;
+
     private OpenCvCamera webcam;
     private SkystoneVision skystoneVision;
-    private Intake intake;
-    private FoundationGrabber foundationGrabber;
-    //private FtcDashboard dashboard;
-
-    //private static final String VUFORIA_KEY =
-    //"AWCbAUL/////AAABmTCGXVp6rkoVvke2BiK3+plG3iq3JyLAw1U4hkFLBysmp+/+bioz70swptw8+ZPJY9NZG3QwMRHll+LegUmjekG0ldT7C6BEyui3t8KJYaSMW8xuX98+1gozpyYCaGtacXW8GczYrqtr3EHqz3TIK6z1KGxwEcTVRaZZFklENpS4B8pASzBr8HFmZh8cDdsnRMgLSyDfVx9adMuHoQNh7cSiAu4R6Gp54nClHvpNzwqtPWYYDg1fXY9hfQsjpNQ/Jx9AewkCpYt59Z8UhZ+rrY/Pex9heqe9N2VkwlYIaqmNTnPuxoFlBno2Lx5nzGhLJKcT8Ujq9w5V7P6cLxzHyq+jDymhnkALwPwi3rTILfe8";
+    private Robot robot;
 
     private SkystonePosition.Positions skystonePosition = SkystonePosition.Positions.UNKNOWN;
     private enum AutoStates {
@@ -55,21 +49,7 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
     public void runOpMode(){
 
-        if(!isStopRequested()){
-            drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
-        }
-        if(!isStopRequested()){
-            elevator = Elevator.getInstance(hardwareMap);
-        }
-        if(!isStopRequested()){
-            intake = Intake.getInstance(hardwareMap);
-        }
-
-        if(!isStopRequested()){
-            foundationGrabber = FoundationGrabber.getInstance(hardwareMap);
-        }
-        //dashboard = FtcDashboard.getInstance();
-
+        robot = Robot.getInstance(hardwareMap);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         skystoneVision = new SkystoneVision();
@@ -85,9 +65,9 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
         }
 
         if(InformationAuto.ifRedAlliance()){
-            drive.setPoseEstimate(new Pose2d(-32,-63,Math.toRadians(90)));
+            robot.drive().setPoseEstimate(new Pose2d(-32,-63,Math.toRadians(90)));
         } else {
-            drive.setPoseEstimate(new Pose2d(-32,63,Math.toRadians(-90)));
+            robot.drive().setPoseEstimate(new Pose2d(-32,63,Math.toRadians(-90)));
         }
 
         while(!isStarted() && !isStopRequested()){
@@ -99,20 +79,19 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
         //Sets up States to be Accurate
         resetTime();
-        elevator.setZero();
+        robot.elevator().setZero();
 
         while(!isStopRequested()){
             switch(currentState){
                 case SEARCHING:
-                    intake.release();
-                    sleep(20);
+                    robot.intake().release();
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
                         webcam.stopStreaming();
                         resetTime();
 
                         //Path to Follow
-                        drive.followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(), drive).toTrajectory(skystonePosition));
+                        robot.drive().followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory(skystonePosition));
                         break;
                     }
                     if(skystonePosition == SkystonePosition.Positions.UNKNOWN && System.currentTimeMillis() - startTime > 500){
@@ -122,10 +101,10 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
 
                 case GOING_TO_FIRST_SKYSTONE:
-                    if (!drive.isBusy()) {
+                    if (!robot.drive().isBusy()) {
                         resetTime();
                         currentState = AutoStates.INTAKING;
-                        intake.setGrabbing();
+                        robot.intake().setGrabbing();
                     }
                     break;
 
@@ -133,34 +112,34 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                     if(System.currentTimeMillis() - startTime > 500){
                         resetTime();
                         currentState = AutoStates.BACKING_UP;
-                        drive.followTrajectory(drive.trajectoryBuilder().back(20.0).build());
+                        robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(10.0).build());
                     }
                     break;
 
                 case BACKING_UP:
-                    if(!drive.isBusy()){
+                    if(!robot.drive().isBusy()){
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
                         if(!isFirstStoneDone){
-                            drive.followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), drive).toTrajectory(skystonePosition));
+                            robot.drive().followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), robot).toTrajectory(skystonePosition));
                         } else {
-                            drive.followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),drive).toTrajectory());
+                            robot.drive().followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
                         }
                     }
 
                 case GOING_TO_FOUNDATION:
-                    if(!drive.isBusy()){
+                    if(!robot.drive().isBusy()){
                         if(foundationPart == 0){
-                            drive.followTrajectory(new LoadingZoneToFoundationPart2(InformationAuto.ifRedAlliance(),drive).toTrajectory());
+                            robot.drive().followTrajectory(new LoadingZoneToFoundationPart2(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
                             ++foundationPart;
                         } else if(foundationPart == 1){
                             resetTime();
                             ++foundationPart;
                             currentState = AutoStates.PLACING_SKYSTONE;
-                            intake.open();
+                            robot.intake().open();
                         }
-                    } else if(drive.getPoseEstimate().getX() > 0){
-                        elevator.setPosition(6.0);
+                    } else if(robot.drive().getPoseEstimate().getX() > 0){
+                        robot.elevator().setPosition(6.0);
                     }
                     break;
 
@@ -170,50 +149,50 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         if(!isFirstStoneDone){
                             isFirstStoneDone = true;
                             currentState = AutoStates.REPOSITIONING;
-                            drive.followTrajectory(drive.trajectoryBuilder().back(9).build());
+                            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(9).build());
                         } else {
                             currentState = AutoStates.GOING_TO_PARK;
-                            drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), drive).toTrajectory());
+                            robot.drive().followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory());
                         }
                     }
                     break;
 
                 case REPOSITIONING:
-                    if(!drive.isBusy()){
+                    if(!robot.drive().isBusy()){
                         System.out.println(repositionManueverCount);
                         if(repositionManueverCount == 0){
                             if(InformationAuto.ifRedAlliance()){
-                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(-90)));
+                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(-180)));
                             } else {
-                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(90)));
+                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(180)));
                             }
-                            elevator.setPosition(0.0);
+                            robot.elevator().setPosition(0.0);
                             ++repositionManueverCount;
                         } else if(repositionManueverCount == 1) {
                             ++repositionManueverCount;
-                            drive.followTrajectory(drive.trajectoryBuilder().back(15).build());
+                            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(15).build());
                             resetTime();
                         } else if(repositionManueverCount == 2) {
-                            foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.DOWN_LEFT);
+                            robot.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.DOWN_LEFT);
                             if (System.currentTimeMillis() - startTime > 2000) {
-                                TrajectoryBuilder trajectoryBuilder = new TrajectoryBuilder(drive.getPoseEstimate(), new DriveConstraints(30.0, 20.0, 0.0,
+                                TrajectoryBuilder trajectoryBuilder = new TrajectoryBuilder(robot.drive().getPoseEstimate(), new DriveConstraints(30.0, 20.0, 0.0,
                                         Math.toRadians(180.0), Math.toRadians(180.0), 0.0));
-                                drive.followTrajectory(trajectoryBuilder.forward(40).build());
+                                robot.drive().followTrajectory(trajectoryBuilder.forward(20).build());
                                 ++repositionManueverCount;
                             }
                         } else if(repositionManueverCount == 3) {
                             if (InformationAuto.ifRedAlliance()) {
-                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(90)),Math.toRadians(180),Math.toRadians(110),Math.toRadians(0));
+                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(90)),Math.toRadians(180),Math.toRadians(110),Math.toRadians(0));
                             } else {
-                                drive.turn(-(drive.getPoseEstimate().getHeading() - Math.toRadians(280)),Math.toRadians(180),Math.toRadians(110),Math.toRadians(0));
+                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(280)),Math.toRadians(180),Math.toRadians(110),Math.toRadians(0));
                             }
                             ++repositionManueverCount;
                             resetTime();
                         } else if(repositionManueverCount == 4) {
-                            foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
+                            robot.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
                             if (System.currentTimeMillis() - startTime > 500) {
-                                drive.followTrajectory(drive.trajectoryBuilder().back(20.0).build());
-                                foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
+                                robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(20.0).build());
+                                robot.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
                                 ++repositionManueverCount;
                             }
                         } else if(repositionManueverCount == 5){
@@ -221,16 +200,16 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                         } else {
                             resetTime();
                             currentState = AutoStates.GOING_TO_PARK;
-                            drive.followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), drive).toTrajectory());
+                            robot.drive().followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory());
                         }
                     }
                     break;
 
                 case GOING_TO_SECOND_SKYSTONE:
-                    if(!drive.isBusy()){
+                    if(!robot.drive().isBusy()){
                         resetTime();
                         currentState = AutoStates.INTAKING;
-                        intake.setGrabbing();
+                        robot.intake().setGrabbing();
                     }
                     break;
 
@@ -238,13 +217,11 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                     break;
 
             }
-            drive.update();
-            elevator.update();
+            robot.update();
             updateTelemetry();
         }
         webcam.closeCameraDevice();
-        elevator.stop();
-        intake.stop();
+        robot.stop();
     }
 
 
@@ -260,14 +237,14 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
         }
 
-        Pose2d driveTrainLocation = drive.getPoseEstimate();
+        Pose2d driveTrainLocation = robot.drive().getPoseEstimate();
 
         telemetry.addData("Drivetrain X: ",driveTrainLocation.getX());
         telemetry.addData("Drivetrain Y: ",driveTrainLocation.getY());
         telemetry.addData("Drivetrain Heading: ", Math.toDegrees(driveTrainLocation.getHeading()));
 
-        telemetry.addData("Elevator Height: ", elevator.getRelativeHeight());
-        telemetry.addData("Elevator Encoder: ", elevator.getEncoderPosition());
+        telemetry.addData("Elevator Height: ", robot.elevator().getRelativeHeight());
+        telemetry.addData("Elevator Encoder: ", robot.elevator().getEncoderPosition());
 
         telemetry.update();
     }
