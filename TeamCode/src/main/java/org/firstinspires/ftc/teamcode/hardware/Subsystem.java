@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-public abstract class Subsystem {
+public interface Subsystem {
 
-    public abstract void zeroSensors();
+    void zeroSensors();
 
-    public abstract void stop();
+    void stop();
 
-    public abstract void update();
+    void update();
 
 }

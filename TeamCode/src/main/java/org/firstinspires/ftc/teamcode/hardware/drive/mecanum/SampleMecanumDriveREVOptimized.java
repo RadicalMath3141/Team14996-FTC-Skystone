@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.teamcode.hardware.Subsystem;
 import org.firstinspires.ftc.teamcode.hardware.drive.localizer.CustomOdometry;
 import org.firstinspires.ftc.teamcode.hardware.drive.localizer.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.hardware.drive.localizer.TemporaryLocalizer;
@@ -31,7 +32,7 @@ import static org.firstinspires.ftc.teamcode.hardware.drive.DriveConstants.getMo
  * Optimized mecanum drive implementation for REV ExHs. The time savings may significantly improve
  * trajectory following performance with moderate additional complexity.
  */
-public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
+public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase implements Subsystem {
     private ExpansionHubEx hub;
     private ExpansionHubMotor leftFront, leftRear, rightRear, rightFront;
     private List<ExpansionHubMotor> motors;
@@ -85,9 +86,7 @@ public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
 
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
-        //setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap));
         setLocalizer(new TemporaryLocalizer(hardwareMap, imu));
-        //setLocalizer(new CustomOdometry(hardwareMap));
     }
 
     @Override
@@ -149,7 +148,11 @@ public class SampleMecanumDriveREVOptimized extends SampleMecanumDriveBase {
         return imu.getAngularOrientation().firstAngle;
     }
 
-    public void resetAngle(){
+    public void zeroSensors(){
+        setMotorPowers(0,0,0,0);
+    }
 
+    public void stop(){
+        zeroSensors();
     }
 }

@@ -1,20 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmode.competition;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.canvas.Canvas;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.auto.structurebuilder.StructureConstructor;
-import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.OneByOneByFive;
-import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.TwoByTwoByFive;
-import org.firstinspires.ftc.teamcode.hardware.Elevator;
+import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
-import org.firstinspires.ftc.teamcode.hardware.Intake;
-import org.firstinspires.ftc.teamcode.hardware.Superstructure;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.util.OmegaGamepad;
 
 import java.util.ArrayList;
@@ -23,14 +15,9 @@ import java.util.List;
 @TeleOp(name = "Competition Teleop")
 public class CompetitionTeleop extends LinearOpMode {
 
-    private SampleMecanumDriveREVOptimized drive;
-    private Elevator elevator;
-    private Intake intake;
-    private FoundationGrabber foundationGrabber;
-    private Superstructure superstructure;
-    private FtcDashboard dashboard;
+    private Robot robot;
 
-    public static double angleCorrection = 0.03;
+    public static double angleCorrection = 0.05;
     private double startingAngle = 0;
 
     //If the boolean below is false, then it will attempt to store a new angle for correction. If it is true, then the robot is translating and is referencing the previous angle.
@@ -38,28 +25,78 @@ public class CompetitionTeleop extends LinearOpMode {
 
     private boolean ifSlower = false;
 
+    private static AUTO_TELEOP_STATES currentState = AUTO_TELEOP_STATES.MANUAL;
+
+    public enum AUTO_TELEOP_STATES {
+        MANUAL, PRE_GRABBING, GRABBING, PRE_PLACING, PLACING, RELEASING;
+
+        public static AUTO_TELEOP_STATES nextState(){
+            switch(currentState){
+                case MANUAL:
+                    return PRE_GRABBING;
+
+                case PRE_GRABBING:
+                    return GRABBING;
+
+                case GRABBING:
+                    return PRE_PLACING;
+
+                case PRE_PLACING:
+                    return PLACING;
+
+                case PLACING:
+                    return RELEASING;
+
+                case RELEASING:
+                    return PRE_GRABBING;
+            }
+            return null;
+        }
+
+        public static AUTO_TELEOP_STATES previousState(){
+            switch(currentState){
+                case GRABBING:
+                    return PRE_GRABBING;
+
+                case PRE_GRABBING:
+                    return MANUAL;
+
+                case PRE_PLACING:
+                    return GRABBING;
+
+                case PLACING:
+                    return PRE_PLACING;
+
+                case RELEASING:
+                    return PLACING;
+
+                case MANUAL:
+                    return MANUAL;
+            }
+            return null;
+        }
+    }
+
     @Override
     public void runOpMode() {
-        dashboard = FtcDashboard.getInstance();
-        drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
-        elevator = Elevator.getInstance(hardwareMap);
-        intake = Intake.getInstance(hardwareMap);
-        foundationGrabber = FoundationGrabber.getInstance(hardwareMap);
+        robot = Robot.getInstance(hardwareMap);
 
         OmegaGamepad buttonPad = new OmegaGamepad(gamepad2);
         OmegaGamepad driverPad = new OmegaGamepad(gamepad1);
 
-        superstructure = new Superstructure(elevator, intake);
-        drive.setPoseEstimate(new Pose2d(0,0,0));
+        robot.drive().setPoseEstimate(new Pose2d(0,0,0));
+        robot.resetStructure();
+        currentState = AUTO_TELEOP_STATES.MANUAL;
+        robot.elevator().resetEncoder();
         waitForStart();
-        intake.release();
+        robot.intake().release();
         while (!isStopRequested()) {
 
             //Foundation Grabber
-            if (driverPad.ifOnceA() && foundationGrabber.getCurrentPosition() == FoundationGrabber.Positions.DOWN_LEFT) {
-                foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
-            } else if(driverPad.ifOnceA() && foundationGrabber.getCurrentPosition() == FoundationGrabber.Positions.UP_LEFT){
-                foundationGrabber.setCurrentPosition(FoundationGrabber.Positions.DOWN_LEFT);
+            if (driverPad.ifOnceA() && robot.foundationGrabber().getCurrentPosition() == FoundationGrabber.Positions.DOWN_LEFT) {
+                Subroutines.LIFT_FOUNDATION_GRABBER.runAction(robot);
+            } else if(driverPad.ifOnceA() && robot.foundationGrabber().getCurrentPosition() == FoundationGrabber.Positions.UP_LEFT){
+                Subroutines.LOWER_FOUNDATION_GRABBER.runAction(robot);
             }
 
             if(driverPad.ifOnceB()){
@@ -67,29 +104,26 @@ public class CompetitionTeleop extends LinearOpMode {
             }
 
             //Intake Control
-            if (gamepad2.a) {
-                intake.setGrabbing();
-                superstructure.setManual();
+            if (buttonPad.ifOnceA()) {
+                robot.intake().setGrabbing();
+                transitionToState(AUTO_TELEOP_STATES.MANUAL);
             }
-            if (gamepad2.b) {
-                intake.open();
-                superstructure.setManual();
+            if (buttonPad.ifOnceB()) {
+                robot.intake().open();
+                transitionToState(AUTO_TELEOP_STATES.MANUAL);
+            }
+
+            if(buttonPad.ifOnceX()){
+                Subroutines.DEPLOY_CAPSTONE.runAction(robot);
+                transitionToState(AUTO_TELEOP_STATES.MANUAL);
             }
 
             //Elevator Control
             if(gamepad2.left_stick_y > 0.05 || gamepad2.left_stick_y < -0.05){
-                superstructure.setManual();
-                elevator.setMotorPowers(gamepad2.left_stick_y);
+                robot.elevator().setMotorPowers(gamepad2.left_stick_y);
+                robot.elevator().setDriverControlled();
             } else {
-                if(superstructure.getCurrentState() == Superstructure.SystemState.MANUAL){
-                    elevator.setMotorPowers(gamepad2.left_stick_y);
-                }
-                if(buttonPad.ifOnceDPadUp()){
-                    superstructure.doUpAction();
-                } else if(buttonPad.ifOnceDPadDown()){
-                    superstructure.doDownAction();
-                }
-                telemetry.addData("If Button Pressed",buttonPad.ifDPadDown());
+                robot.elevator().setMotorPowers(gamepad2.left_stick_y);
             }
             
             //Drive Control
@@ -100,48 +134,85 @@ public class CompetitionTeleop extends LinearOpMode {
                         (-gamepad1.right_stick_x) / 1.5)
                 );
             } else {
-                drive.setDrivePower(new Pose2d(0, 0, 0));
+                robot.drive().setDrivePower(new Pose2d(0, 0, 0));
+            }
+
+            //Automated Tele-Op Control
+            if(buttonPad.ifOnceRightBumper()){
+                transitionToState(AUTO_TELEOP_STATES.nextState());
+            }
+
+            if(buttonPad.ifOnceLeftBumper()){
+                transitionToState(AUTO_TELEOP_STATES.previousState());
+            }
+
+            if(buttonPad.ifOnceDPadDown()){
+                robot.setToPreviousLayerHeight();
+            }
+
+            if(buttonPad.ifOnceDPadUp()){
+                robot.setToNextLayerHeight();
             }
 
             updateTelemetry();
-
             buttonPad.update();
             driverPad.update();
-            superstructure.update();
-            drive.update();
-
-            Pose2d currentPose = drive.getPoseEstimate();
-            Pose2d lastError = drive.getLastError();
-
-            TelemetryPacket packet = new TelemetryPacket();
-            Canvas fieldOverlay = packet.fieldOverlay();
-
-            packet.put("x", currentPose.getX());
-            packet.put("y", currentPose.getY());
-            packet.put("heading", currentPose.getHeading());
-
-            fieldOverlay.setStroke("#3F51B5");
-            fieldOverlay.fillCircle(currentPose.getX(), currentPose.getY(), 3);
-            dashboard.sendTelemetryPacket(packet);
+            robot.update();
         }
-        elevator.stop();
-        intake.stop();
-
-
+        robot.stop();
     }
 
     public void updateTelemetry() {
-        Pose2d driveTrainLocation = drive.getPoseEstimate();
+        Pose2d driveTrainLocation = robot.drive().getPoseEstimate();
         telemetry.addData("Drivetrain X: ", driveTrainLocation.getX());
         telemetry.addData("Drivetrain Y: ", driveTrainLocation.getY());
         telemetry.addData("Drivetrain Heading: ", Math.toDegrees(driveTrainLocation.getHeading()));
 
-        telemetry.addData("Elevator Height: ", elevator.getRelativeHeight());
-        telemetry.addData("Superstructure State: ", superstructure.getCurrentState());
-
+        telemetry.addData("Elevator Height: ", robot.elevator().getRelativeHeight());
         telemetry.addData("If Slow Movement: ", ifSlower);
+        telemetry.addData("Structure Builder State: ", currentState);
+
+        telemetry.addData("Structure Constructor Height: ", robot.getCurrentLayerNumber());
 
         telemetry.update();
+    }
+
+    public void transitionToState(AUTO_TELEOP_STATES state){
+        if(state != null) {
+            currentState = state;
+        }
+        switch (currentState){
+            case MANUAL:
+                becomeManual();
+                return;
+
+            case PRE_GRABBING:
+                Subroutines.GO_TO_ZERO.runAction(robot);
+                Subroutines.RELEASE_STONE.runAction(robot);
+                return;
+
+            case GRABBING:
+                Subroutines.GRAB_STONE.runAction(robot);
+                return;
+
+            case PRE_PLACING:
+                Subroutines.GO_TO_CURRENT_LAYER.runAction(robot);
+                return;
+
+            case PLACING:
+                Subroutines.LOWER_A_SMALL_AMOUNT.runAction(robot);
+                return;
+
+            case RELEASING:
+                robot.setToNextLayerHeight();
+                Subroutines.RELEASE_STONE.runAction(robot);
+                return;
+        }
+    }
+
+    public void becomeManual(){
+        currentState = AUTO_TELEOP_STATES.MANUAL;
+        robot.elevator().setDriverControlled();
     }
 
     public void setTeleopPower(Pose2d pose) {
@@ -154,9 +225,9 @@ public class CompetitionTeleop extends LinearOpMode {
         if (velocityR < 0.05 && velocityR > -0.05 && !((velocityX <= 0.05 && velocityX >= -0.05) && (velocityY <= 0.05 && velocityY >= -0.05))) {
             if (!ifStartingAngle) {
                 ifStartingAngle = true;
-                startingAngle = drive.getPoseEstimate().getHeading();
+                startingAngle = robot.drive().getPoseEstimate().getHeading();
             }
-            anglePowerCorrection = angleCorrection * (startingAngle - drive.getPoseEstimate().getHeading());
+            anglePowerCorrection = angleCorrection * (startingAngle - robot.drive().getPoseEstimate().getHeading());
         } else if ((velocityR >= 0.05 || velocityR <= -0.05) || ((velocityX <= 0.05 && velocityX >= -0.05) && (velocityY <= 0.05 && velocityY >= -0.05))) {
             ifStartingAngle = false;
         }
@@ -186,6 +257,6 @@ public class CompetitionTeleop extends LinearOpMode {
             powerValues.set(i, powerValues.get(i) / greatestPower);
         }
 
-        drive.setMotorPowers(powerValues.get(0), powerValues.get(1), powerValues.get(3), powerValues.get(2));
+        robot.drive().setMotorPowers(powerValues.get(0), powerValues.get(1), powerValues.get(3), powerValues.get(2));
     }
 }

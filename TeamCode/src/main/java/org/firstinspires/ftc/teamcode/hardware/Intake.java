@@ -6,19 +6,25 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
-public class Intake extends Subsystem{
+public class Intake implements Subsystem{
 
     private static Intake intake;
 
-    private Servo grabberServo;
-    private Servo releaseServo;
+    private static Servo grabberServo;
+    private static Servo releaseServo;
+    private static Servo capstoneServo;
 
     private State currentState;
 
-    public static double holdPosition = 0;
-    public static double releasePosition = 0.3;
-    public static double grabPosition = 0.3;
+    public static double holdPosition = 1;
+    public static double releasePosition = 0.7;
+
+    public static double grabPosition = 0.55;
     public static double stoneHoldPosition = 0.9;
+
+    //For Capstone Deploying Servo
+    public static double capstoneHoldPosition = 0.55;
+    public static double capstoneDeployPosition = 1;
 
     public enum State {
         RELEASING, GRABBING, OPEN
@@ -28,6 +34,9 @@ public class Intake extends Subsystem{
         if(intake == null){
             intake = new Intake(hardwareMap);
         }
+        grabberServo.setPosition(grabPosition);
+        capstoneServo.setPosition(capstoneHoldPosition);
+        releaseServo.setPosition(holdPosition);
         return intake;
     }
 
@@ -35,7 +44,8 @@ public class Intake extends Subsystem{
         currentState = State.OPEN;
         grabberServo = hardwareMap.servo.get("grabberServo");
         releaseServo = hardwareMap.servo.get("releaseServo");
-        grabberServo.setPosition(grabPosition);
+
+        capstoneServo = hardwareMap.servo.get("capstoneServo");
     }
 
 
@@ -60,6 +70,14 @@ public class Intake extends Subsystem{
 
     public void setHold(){
         releaseServo.setPosition(holdPosition);
+    }
+
+    public void releaseCapstone(){
+        capstoneServo.setPosition(capstoneDeployPosition);
+    }
+
+    public void holdCapstone(){
+        capstoneServo.setPosition(capstoneHoldPosition);
     }
 
 

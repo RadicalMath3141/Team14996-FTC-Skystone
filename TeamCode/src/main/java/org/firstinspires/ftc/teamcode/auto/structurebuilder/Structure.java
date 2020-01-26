@@ -30,6 +30,10 @@ public class Structure {
         }
     }
 
+    public int currentLayerNumber(){
+        return currentLayer;
+    }
+
     public int numLayers(){
         return layers.size();
     }
@@ -47,5 +51,12 @@ public class Structure {
             return true;
         }
         return false;
+    }
+
+    public Layer previousLayer(){
+        if(!(currentLayer - 1 < 0)){
+            currentLayer--;
+        }
+        return layers.get(currentLayer);
     }
 }
