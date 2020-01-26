@@ -15,7 +15,7 @@ public class ServoTuner extends LinearOpMode {
     private OmegaGamepad omegaGamepad;
     @Override
     public void runOpMode() {
-        testServo = hardwareMap.servo.get("leftServo");
+        testServo = hardwareMap.servo.get("rightServo");
         omegaGamepad = new OmegaGamepad(gamepad1);
         while(!isStopRequested()){
             testServo.setPosition(position);

@@ -36,8 +36,8 @@ public class StructureConstructor {
     }
 
     public boolean ifCanGoHigher(){
-        //I am subtracting one due to zero indexing
-        if(structure.numLayers() - 1 - structure.currentLayerNumber() > 0){
+        //I am subtracting one due to zero indexing and another one is subtracted, because it is always assumed that the capstone goes on top.
+        if(structure.numLayers() - 2 - structure.currentLayerNumber() > 0){
             return true;
         } else {
             return false;
@@ -45,7 +45,7 @@ public class StructureConstructor {
     }
 
     public double stoneZCoordToElevatorHeight(int zCoord){
-        return zCoord * 4 + 3.25;
+        return zCoord * 5.3 + 5.5;
     }
 
 }

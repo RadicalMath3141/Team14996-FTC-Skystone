@@ -7,11 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.auto.subroutines.DelayedSubroutine;
 import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
-import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart2;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToMovedFoundation;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToSkystone;
 import org.firstinspires.ftc.teamcode.paths.MovedFoundationToAllianceBridge;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
@@ -115,7 +113,7 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                     if(!robot.drive().isBusy()){
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
-                        robot.drive().followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), robot).toTrajectory(skystonePosition));
+                        robot.drive().followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), robot).toTrajectory());
                     }
 
                 case GOING_TO_FOUNDATION:
@@ -157,7 +155,7 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                             resetTime();
                         } else if(repositionManueverCount == 2) {
                             robot.actionCache().add(new DelayedSubroutine(0, Subroutines.LOWER_FOUNDATION_GRABBER));
-                            if (System.currentTimeMillis() - startTime > 2000) {
+                            if (System.currentTimeMillis() - startTime > 1500) {
                                 robot.drive().followTrajectory(robot.drive().trajectoryBuilder().forward(30).build());
                                 ++repositionManueverCount;
                             }

@@ -103,11 +103,11 @@ public class Robot {
     }
 
     public void setToNextLayerHeight(){
-        if(!structureConstructor.ifCanGoHigher()){
-            actionCache().add(new DelayedSubroutine( 3000, Subroutines.DEPLOY_CAPSTONE));
-        } else {
-            structureConstructor.getNextHeight();
-        }
+        structureConstructor.getNextHeight();
+    }
+
+    public void resetStructure(){
+        structure = OneByOneBySix.toStructure();
     }
 
     public ArrayList<DelayedSubroutine> actionCache(){

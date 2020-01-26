@@ -73,7 +73,7 @@ public class Elevator implements Subsystem {
     public Elevator(HardwareMap hardwareMap){
         elevatorMotor = (DcMotor) hardwareMap.get("elevatorMotor");
         elevatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        elevatorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        elevatorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         magneticLimitSwitch = hardwareMap.get(DigitalChannel.class, "elevatorSwitch");
         magneticLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
@@ -154,6 +154,9 @@ public class Elevator implements Subsystem {
         double error = getRelativeHeight() - targetState.getX();
         double correction = pidfController.update(error);
         double feedForward = calculateFeedForward(targetState,getCurrentMass());
+        if(error < 0){
+            feedForward = 0;
+        }
         setMotorPowers(feedForward - correction);
     }
 
@@ -176,7 +179,7 @@ public class Elevator implements Subsystem {
     //LOWERING_TO_PLACE State
     private SystemState handleTransitionToLOWERING_TO_PLACE(SystemState futureState){
         motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(new MotionState(currentHeight,0,0,0),new MotionState(currentHeight-1,0,0,0),maxSpeed,maxAcceleration,maxJerk);
-        goalHeight = currentHeight - 1;
+        goalHeight = currentHeight - 2;
         startTime = System.currentTimeMillis();
         return handleDefaultTransitions(futureState);
     }
@@ -191,6 +194,9 @@ public class Elevator implements Subsystem {
         double error = getRelativeHeight() - targetState.getX();
         double correction = pidfController.update(error);
         double feedForward = calculateFeedForward(targetState,getCurrentMass());
+        if(error < 0){
+            feedForward = 0;
+        }
         setMotorPowers(feedForward - correction);
     }
 

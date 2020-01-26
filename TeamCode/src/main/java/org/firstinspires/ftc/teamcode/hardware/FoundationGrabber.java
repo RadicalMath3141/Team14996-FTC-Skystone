@@ -20,19 +20,17 @@ public class FoundationGrabber implements Subsystem {
     public enum Positions implements PositionGetter{
         UP_RIGHT {
             public double getPosition() {
-                return 0.1;
-            }
-        }, UP_LEFT{
-            public double getPosition() {
                 return 1;
             }
+        }, UP_LEFT{
+            public double getPosition() { return 0.4; }
         }, DOWN_RIGHT {
             public double getPosition() {
-                return 0.6;
+                return 0.4;
             }
         }, DOWN_LEFT{
             public double getPosition() {
-                return 0.50;
+                return 1;
             }
         }, READY_RIGHT{
             public double getPosition(){
@@ -40,7 +38,7 @@ public class FoundationGrabber implements Subsystem {
             }
         }, READY_LEFT{
             public double getPosition(){
-                return 0.6;
+                return 0.7;
             }
         }
     }

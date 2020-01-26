@@ -85,6 +85,9 @@ public class CompetitionTeleop extends LinearOpMode {
         OmegaGamepad driverPad = new OmegaGamepad(gamepad1);
 
         robot.drive().setPoseEstimate(new Pose2d(0,0,0));
+        robot.resetStructure();
+        currentState = AUTO_TELEOP_STATES.MANUAL;
+        robot.elevator().resetEncoder();
         waitForStart();
         robot.intake().release();
         while (!isStopRequested()) {
@@ -117,7 +120,7 @@ public class CompetitionTeleop extends LinearOpMode {
 
             //Elevator Control
             if(gamepad2.left_stick_y > 0.05 || gamepad2.left_stick_y < -0.05){
-                robot.elevator().setMotorPowers(-gamepad2.left_stick_y);
+                robot.elevator().setMotorPowers(gamepad2.left_stick_y);
                 robot.elevator().setDriverControlled();
             } else {
                 robot.elevator().setMotorPowers(gamepad2.left_stick_y);
@@ -143,11 +146,11 @@ public class CompetitionTeleop extends LinearOpMode {
                 transitionToState(AUTO_TELEOP_STATES.previousState());
             }
 
-            if(buttonPad.ifOnceLeftTrigger()){
+            if(buttonPad.ifOnceDPadDown()){
                 robot.setToPreviousLayerHeight();
             }
 
-            if(buttonPad.ifOnceRightTrigger()){
+            if(buttonPad.ifOnceDPadUp()){
                 robot.setToNextLayerHeight();
             }
 
@@ -168,6 +171,8 @@ public class CompetitionTeleop extends LinearOpMode {
         telemetry.addData("Elevator Height: ", robot.elevator().getRelativeHeight());
         telemetry.addData("If Slow Movement: ", ifSlower);
         telemetry.addData("Structure Builder State: ", currentState);
+
+        telemetry.addData("Structure Constructor Height: ", robot.getCurrentLayerNumber());
 
         telemetry.update();
     }
