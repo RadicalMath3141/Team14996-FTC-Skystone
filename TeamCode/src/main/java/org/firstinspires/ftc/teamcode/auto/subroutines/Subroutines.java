@@ -8,6 +8,8 @@ import kotlin.jvm.functions.Function0;
 
 public class Subroutines {
 
+    private static final double DOWN_MOVEMENT_CONSTANT = 4.0;
+
     public interface Subroutine {}
 
     public interface OneActionSubroutine extends Subroutine{
@@ -27,7 +29,7 @@ public class Subroutines {
 
     public static final OneActionSubroutine GO_TO_CURRENT_LAYER = (robot -> robot.goToCurrentLayer());
 
-    public static final OneActionSubroutine LOWER_A_SMALL_AMOUNT = (robot -> robot.elevator().lowerToPlace());
+    public static final OneActionSubroutine LOWER_A_SMALL_AMOUNT = (robot -> robot.elevator().setPosition(robot.elevator().getRelativeHeight() - DOWN_MOVEMENT_CONSTANT));
 
     //Intake Subroutines
     public static final OneActionSubroutine GRAB_STONE = (robot -> robot.intake().setGrabbing());

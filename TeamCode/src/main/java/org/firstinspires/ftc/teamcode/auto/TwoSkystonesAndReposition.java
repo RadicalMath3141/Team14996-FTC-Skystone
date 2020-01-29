@@ -20,7 +20,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "One Skystone, Reposition, Park")
+@Autonomous(name = "Two Skystone, Reposition, Park")
 public class TwoSkystonesAndReposition extends LinearOpMode {
 
     private OpenCvCamera webcam;

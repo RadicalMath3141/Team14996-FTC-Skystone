@@ -63,6 +63,8 @@ public class OneSkystoneAndReposition extends LinearOpMode {
             robot.drive().setPoseEstimate(new Pose2d(-32,63,Math.toRadians(-90)));
         }
 
+        robot.resetStructure();
+
         while(!isStarted() && !isStopRequested()){
             if(isStopRequested()){
                 webcam.stopStreaming();
@@ -141,29 +143,28 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                 case REPOSITIONING:
                     if(!robot.drive().isBusy()){
                         if(repositionManueverCount == 0){
-                            robot.actionCache().add(new DelayedSubroutine(100, Subroutines.READY_TO_GRAB_FOUNDATION));
                             robot.actionCache().add(new DelayedSubroutine(300, Subroutines.GO_TO_ZERO));
                             if(InformationAuto.ifRedAlliance()){
-                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(-90)));
+                                robot.drive().turn(Math.toRadians(-180));
                             } else {
-                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(90)));
+                                robot.drive().turn(Math.toRadians(180));
                             }
                             ++repositionManueverCount;
                         } else if(repositionManueverCount == 1) {
                             ++repositionManueverCount;
-                            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(15).build());
+                            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(25).build());
                             resetTime();
                         } else if(repositionManueverCount == 2) {
                             robot.actionCache().add(new DelayedSubroutine(0, Subroutines.LOWER_FOUNDATION_GRABBER));
-                            if (System.currentTimeMillis() - startTime > 1500) {
-                                robot.drive().followTrajectory(robot.drive().trajectoryBuilder().forward(30).build());
+                            if (System.currentTimeMillis() - startTime > 2000) {
+                                robot.drive().followTrajectory(robot.drive().trajectoryBuilder().forward(45).build());
                                 ++repositionManueverCount;
                             }
                         } else if(repositionManueverCount == 3) {
                             if (InformationAuto.ifRedAlliance()) {
-                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(180),Math.toRadians(180),Math.toRadians(0));
+                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(110)),Math.toRadians(180),Math.toRadians(180),Math.toRadians(0));
                             } else {
-                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(180)),Math.toRadians(180),Math.toRadians(180),Math.toRadians(0));
+                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(300)),Math.toRadians(180),Math.toRadians(180),Math.toRadians(0));
                             }
                             ++repositionManueverCount;
                             resetTime();

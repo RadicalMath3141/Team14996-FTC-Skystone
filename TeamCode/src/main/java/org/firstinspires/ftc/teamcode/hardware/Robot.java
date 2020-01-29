@@ -37,6 +37,9 @@ public class Robot {
         if(robotInstance == null){
             robotInstance = new Robot(hardwareMap);
         }
+        robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
+        robotInstance.intake().setHold();
+        robotInstance.intake().open();
         return robotInstance;
     }
 

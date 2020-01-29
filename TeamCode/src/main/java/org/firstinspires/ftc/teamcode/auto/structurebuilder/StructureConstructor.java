@@ -45,7 +45,7 @@ public class StructureConstructor {
     }
 
     public double stoneZCoordToElevatorHeight(int zCoord){
-        return zCoord * 5.3 + 5.5;
+        return zCoord * 5.3 + 6;
     }
 
 }

@@ -20,7 +20,7 @@ public class Elevator implements Subsystem {
     private DigitalChannel magneticLimitSwitch;
 
     //PID constants for the elevator
-    public static double kP = 0.3;
+    public static double kP = 0.5;
     public static double kI = 0.05;
     public static double kD = 0;
 
@@ -179,7 +179,7 @@ public class Elevator implements Subsystem {
     //LOWERING_TO_PLACE State
     private SystemState handleTransitionToLOWERING_TO_PLACE(SystemState futureState){
         motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(new MotionState(currentHeight,0,0,0),new MotionState(currentHeight-1,0,0,0),maxSpeed,maxAcceleration,maxJerk);
-        goalHeight = currentHeight - 2;
+        goalHeight = currentHeight - 4;
         startTime = System.currentTimeMillis();
         return handleDefaultTransitions(futureState);
     }

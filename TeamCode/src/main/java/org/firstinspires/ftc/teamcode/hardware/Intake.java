@@ -19,7 +19,7 @@ public class Intake implements Subsystem{
     public static double holdPosition = 1;
     public static double releasePosition = 0.7;
 
-    public static double grabPosition = 0.55;
+    public static double grabPosition = 0.45;
     public static double stoneHoldPosition = 0.9;
 
     //For Capstone Deploying Servo
