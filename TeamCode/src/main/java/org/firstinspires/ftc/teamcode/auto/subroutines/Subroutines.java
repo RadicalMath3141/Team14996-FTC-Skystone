@@ -3,9 +3,6 @@ package org.firstinspires.ftc.teamcode.auto.subroutines;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-
 public class Subroutines {
 
     private static final double DOWN_MOVEMENT_CONSTANT = 4.0;
@@ -36,6 +33,10 @@ public class Subroutines {
 
     public static final OneActionSubroutine RELEASE_STONE = (robot -> robot.intake().open());
 
+    public static final OneActionSubroutine RELEASE_INTAKE = (robot -> robot.intake().release());
+
+    public static final OneActionSubroutine RESET_RELEASE = (robot -> robot.intake().setReleaseServoOutOfWay());
+
     //Capstone Release Subroutines
     public static final OneActionSubroutine LOWER_CAPSTONE_HOLDER = (robot -> robot.intake().releaseCapstone());
 
@@ -45,6 +46,11 @@ public class Subroutines {
     public static final OneActionSubroutine DEPLOY_CAPSTONE = robot -> {
         LOWER_CAPSTONE_HOLDER.runAction(robot);
         robot.actionCache().add(new DelayedSubroutine(1000,RAISE_CAPSTONE_HOLDER));
+    };
+
+    public static final OneActionSubroutine RELEASE_INTAKE_RESET = robot -> {
+        RELEASE_INTAKE.runAction(robot);
+        robot.actionCache().add(new DelayedSubroutine(500, RESET_RELEASE));
     };
 
 

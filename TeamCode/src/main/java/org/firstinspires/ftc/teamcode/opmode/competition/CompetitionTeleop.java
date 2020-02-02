@@ -89,7 +89,7 @@ public class CompetitionTeleop extends LinearOpMode {
         currentState = AUTO_TELEOP_STATES.MANUAL;
         robot.elevator().resetEncoder();
         waitForStart();
-        robot.intake().release();
+        Subroutines.RELEASE_INTAKE_RESET.runAction(robot);
         while (!isStopRequested()) {
 
             //Foundation Grabber
@@ -152,6 +152,11 @@ public class CompetitionTeleop extends LinearOpMode {
 
             if(buttonPad.ifOnceDPadUp()){
                 robot.setToNextLayerHeight();
+            }
+            
+            //Elevator Zero Reset
+            if(buttonPad.ifOnceY()){
+                robot.elevator().setZero();
             }
 
             updateTelemetry();

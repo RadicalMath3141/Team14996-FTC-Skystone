@@ -79,7 +79,8 @@ public class OneSkystoneAndReposition extends LinearOpMode {
         while(!isStopRequested()){
             switch(currentState){
                 case SEARCHING:
-                    robot.intake().release();
+                    Subroutines.RELEASE_INTAKE_RESET.runAction(robot);
+                    robot.actionCache().add(new DelayedSubroutine(100,Subroutines.RELEASE_STONE));
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
                         webcam.stopStreaming();
@@ -136,7 +137,7 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                     if(System.currentTimeMillis() - startTime > 250){
                         resetTime();
                         currentState = AutoStates.REPOSITIONING;
-                        robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(9).build());
+                        robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(7).build());
                     }
                     break;
 
@@ -144,10 +145,11 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                     if(!robot.drive().isBusy()){
                         if(repositionManueverCount == 0){
                             robot.actionCache().add(new DelayedSubroutine(300, Subroutines.GO_TO_ZERO));
+                            robot.actionCache().add(new DelayedSubroutine(100, Subroutines.READY_TO_GRAB_FOUNDATION));
                             if(InformationAuto.ifRedAlliance()){
-                                robot.drive().turn(Math.toRadians(-180));
+                                robot.drive().turn(Math.toRadians(-190));
                             } else {
-                                robot.drive().turn(Math.toRadians(180));
+                                robot.drive().turn(Math.toRadians(190));
                             }
                             ++repositionManueverCount;
                         } else if(repositionManueverCount == 1) {

@@ -34,11 +34,11 @@ public class FoundationGrabber implements Subsystem {
             }
         }, READY_RIGHT{
             public double getPosition(){
-                return 0.4;
+                return 0.6;
             }
         }, READY_LEFT{
             public double getPosition(){
-                return 0.7;
+                return 0.8;
             }
         }
     }

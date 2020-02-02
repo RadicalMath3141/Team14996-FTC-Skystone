@@ -4,9 +4,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.Structure;
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.StructureConstructor;
-import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.OneByOneBySix;
+import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.OneByOneByNine;
 import org.firstinspires.ftc.teamcode.auto.subroutines.DelayedSubroutine;
-import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class Robot {
 
     private static StructureConstructor structureConstructor;
 
-    private static Structure structure = OneByOneBySix.toStructure();
+    private static Structure structure = OneByOneByNine.toStructure();
 
     //Indices of subsystems
     private final int intakeIndex = 0;
@@ -39,7 +38,7 @@ public class Robot {
         }
         robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
         robotInstance.intake().setHold();
-        robotInstance.intake().open();
+        robotInstance.intake().setGrabbing();
         return robotInstance;
     }
 
@@ -110,7 +109,7 @@ public class Robot {
     }
 
     public void resetStructure(){
-        structure = OneByOneBySix.toStructure();
+        structure = OneByOneByNine.toStructure();
     }
 
     public ArrayList<DelayedSubroutine> actionCache(){
