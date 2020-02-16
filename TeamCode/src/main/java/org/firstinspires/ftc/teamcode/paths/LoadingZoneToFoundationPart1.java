@@ -18,9 +18,9 @@ public class LoadingZoneToFoundationPart1 {
 
     public Trajectory toTrajectory (){
         if(redAlliance){
-            return robot.drive().trajectoryBuilder().splineTo(new Pose2d(-12, -40, 0)).addMarker(new Vector2d(0,-40), robot.goToCurrentLayer).splineTo(new Pose2d(3,-40,0)).splineTo(new Pose2d(20,-40,0)).build();
+            return robot.drive().trajectoryBuilder().splineTo(new Pose2d(-12, -36, 0)).addMarker(new Vector2d(0,-36), robot.goToCurrentLayer).splineTo(new Pose2d(3,-36,0)).splineTo(new Pose2d(20,-36,0)).build();
         } else {
-            return robot.drive().trajectoryBuilder().splineTo(new Pose2d(-12, 40, 0)).addMarker(new Vector2d(0,40), robot.goToCurrentLayer).splineTo(new Pose2d(3,40,0)).splineTo(new Pose2d(20,40,0)).build();
+            return robot.drive().trajectoryBuilder().splineTo(new Pose2d(-12, 36, 0)).addMarker(new Vector2d(0,36), robot.goToCurrentLayer).splineTo(new Pose2d(3,36,0)).splineTo(new Pose2d(20,36,0)).build();
         }
     }
 

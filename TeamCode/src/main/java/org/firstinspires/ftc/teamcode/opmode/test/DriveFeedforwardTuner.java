@@ -38,7 +38,6 @@ public class DriveFeedforwardTuner extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDriveBase drive = new SampleMecanumDriveREVOptimized(hardwareMap);
-        drive.setLocalizer(new MecanumDrive.MecanumLocalizer(drive,false));
         NanoClock clock = NanoClock.system();
 
         telemetry.log().add("Press play to begin the feedforward tuning routine");

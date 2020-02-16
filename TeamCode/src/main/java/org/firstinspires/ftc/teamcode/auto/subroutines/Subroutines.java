@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 
 public class Subroutines {
 
-    private static final double DOWN_MOVEMENT_CONSTANT = 4.0;
+    private static final double DOWN_MOVEMENT_CONSTANT = 4.5;
 
     public interface Subroutine {}
 
@@ -50,7 +50,7 @@ public class Subroutines {
 
     public static final OneActionSubroutine RELEASE_INTAKE_RESET = robot -> {
         RELEASE_INTAKE.runAction(robot);
-        robot.actionCache().add(new DelayedSubroutine(500, RESET_RELEASE));
+        robot.actionCache().add(new DelayedSubroutine(600, RESET_RELEASE));
     };
 
 

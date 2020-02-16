@@ -71,7 +71,7 @@ public class TemporaryLocalizer extends TwoTrackingWheelLocalizer {
     @Override
     public List<Double> getWheelPositions() {
         return Arrays.asList(
-                encoderTicksToInches(leftEncoder.getCurrentPosition() * 1.13663852),
+                encoderTicksToInches(-1 * leftEncoder.getCurrentPosition() * 1.13663852),
                 encoderTicksToInches(-1 * frontEncoder.getCurrentPosition() * 1.149731)
         );
     }

@@ -40,9 +40,9 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 0.01459;
+    public static double kV = 0.01596;
     public static double kA = 0.00009;
-    public static double kStatic = 0.07027;
+    public static double kStatic = 0.07534;
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
      * the constraints should never exceed ~80% of the robot's actual capabilities. While Road
@@ -52,7 +52,7 @@ public class DriveConstants {
      * forces acceleration-limited profiling).
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            40.0, 40.0, 0.0,
+            40.0, 30.0, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 

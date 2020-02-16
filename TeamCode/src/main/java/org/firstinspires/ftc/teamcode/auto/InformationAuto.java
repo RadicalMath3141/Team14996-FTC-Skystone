@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.util.OmegaGamepad;
 public class InformationAuto extends LinearOpMode {
 
     private static boolean redAlliance = true;
+    private static boolean ifBridgeSidePark = true;
 
     private OmegaGamepad omegaGamepad;
     private static DataChoice currentDataChoice = DataChoice.ALLIANCE;
@@ -19,6 +20,11 @@ public class InformationAuto extends LinearOpMode {
     private enum DataChoice implements DataPoint {
         ALLIANCE {
             public void setNextDataChoice() {
+                currentDataChoice = DataChoice.PARKING_SIDE;
+            }
+        }, PARKING_SIDE {
+            public void setNextDataChoice(){
+                currentDataChoice = DataChoice.ALLIANCE;
             }
         }
     }
@@ -31,13 +37,28 @@ public class InformationAuto extends LinearOpMode {
             } else {
                 telemetry.addData("Current Alliance: ", "Blue Alliance");
             }
+
+            if(ifBridgeSidePark){
+                telemetry.addData("Parking Side: ", "Bridge Side");
+            } else {
+                telemetry.addData("Parking Side: ", "Wall Side");
+            }
+
+            telemetry.addData("Data Choice Being Modified: ", currentDataChoice);
+
             if (omegaGamepad.ifOnceA()) {
                 currentDataChoice.setNextDataChoice();
             }
             switch (currentDataChoice) {
                 case ALLIANCE:
-                    if (gamepad1.right_bumper) {
+                    if (omegaGamepad.ifOnceRightBumper()) {
                         redAlliance = !redAlliance;
+                    }
+                    break;
+
+                case PARKING_SIDE:
+                    if(omegaGamepad.ifOnceRightBumper()){
+                        ifBridgeSidePark = !ifBridgeSidePark;
                     }
                     break;
             }
@@ -50,4 +71,7 @@ public class InformationAuto extends LinearOpMode {
         return redAlliance;
     }
 
+    public static boolean isIfBridgeSidePark(){
+        return ifBridgeSidePark;
+    }
 }

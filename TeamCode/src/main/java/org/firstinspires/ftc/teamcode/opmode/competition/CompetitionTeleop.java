@@ -99,7 +99,7 @@ public class CompetitionTeleop extends LinearOpMode {
                 Subroutines.LOWER_FOUNDATION_GRABBER.runAction(robot);
             }
 
-            if(driverPad.ifOnceB()){
+            if(driverPad.ifOnceRightBumper()){
                 ifSlower = !ifSlower;
             }
 
@@ -173,12 +173,15 @@ public class CompetitionTeleop extends LinearOpMode {
         telemetry.addData("Drivetrain Y: ", driveTrainLocation.getY());
         telemetry.addData("Drivetrain Heading: ", Math.toDegrees(driveTrainLocation.getHeading()));
 
+        telemetry.addData("Forward Odometer: ", hardwareMap.dcMotor.get("leftFront").getCurrentPosition());
+        telemetry.addData("Normal Odometer: ", hardwareMap.dcMotor.get("leftRear").getCurrentPosition());
+
         telemetry.addData("Elevator Height: ", robot.elevator().getRelativeHeight());
         telemetry.addData("If Slow Movement: ", ifSlower);
         telemetry.addData("Structure Builder State: ", currentState);
 
         telemetry.addData("Structure Constructor Height: ", robot.getCurrentLayerNumber());
-
+        telemetry.addData("Elevator Motor Power: ", robot.elevator().getMotorPower());
         telemetry.update();
     }
 

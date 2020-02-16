@@ -18,9 +18,9 @@ public class LoadingZoneToFoundationPart2 {
 
     public Trajectory toTrajectory (){
         if(redAlliance){
-            return drive.trajectoryBuilder().splineTo(new Pose2d(52,-26,Math.toRadians(90))).build();
+            return drive.trajectoryBuilder().splineTo(new Pose2d(54,-26,Math.toRadians(90))).build();
         } else {
-            return drive.trajectoryBuilder().splineTo(new Pose2d(52,26,Math.toRadians(-90))).build();
+            return drive.trajectoryBuilder().splineTo(new Pose2d(54,26,Math.toRadians(-90))).build();
         }
     }
 

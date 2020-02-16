@@ -38,7 +38,7 @@ public class Robot {
         }
         robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
         robotInstance.intake().setHold();
-        robotInstance.intake().setGrabbing();
+        robotInstance.intake().open();
         return robotInstance;
     }
 
@@ -110,6 +110,7 @@ public class Robot {
 
     public void resetStructure(){
         structure = OneByOneByNine.toStructure();
+        structureConstructor.setStructure(structure);
     }
 
     public ArrayList<DelayedSubroutine> actionCache(){
@@ -118,7 +119,7 @@ public class Robot {
 
     public final Function0<Unit> goToCurrentLayer = new Function0<Unit>(){
         public Unit invoke() {
-            goToCurrentLayer();
+            elevator().setPosition(7.0);
             return Unit.INSTANCE;
         }
     };

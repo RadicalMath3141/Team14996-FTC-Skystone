@@ -39,11 +39,13 @@ public class Elevator implements Subsystem {
 
     public static double CORRECTION_CONSTANT = 1.19;
 
-    private static final double winchDiameter = 1.55;
-    private static final double gearRatioToWinch = -1.0;
-    private static final double elevatorOffset = 2.5;
+    private static final double WINCH_DIAMETER = 1.55;
+    private static final double GEAR_RATIO = -1.0;
+    private static final double ELEVATOR_OFFSET = 2.5;
 
     private static final double assemblyMass = 10;
+
+    private double motorPower = 0;
 
     private MotionProfile motionProfile;
     private PIDFController pidfController;
@@ -53,7 +55,7 @@ public class Elevator implements Subsystem {
     private long startTime;
 
     public enum SystemState {
-        IDLE, MOVE_TO_TARGET, HOLD, LOWERING_TO_PLACE, DRIVER_CONTROLLED
+        IDLE, MOVE_TO_TARGET, HOLD, DRIVER_CONTROLLED
     }
 
     //Units are in inches above its resting height (reference is with respect to the bottom of the elevator, not floor)
@@ -94,9 +96,6 @@ public class Elevator implements Subsystem {
             case MOVE_TO_TARGET:
                 updateMOVE_TO_TARGETState();
                 break;
-            case LOWERING_TO_PLACE:
-                updateLOWERING_TO_PLACEState();
-                break;
         }
 
         //Zero Position if True
@@ -116,8 +115,6 @@ public class Elevator implements Subsystem {
                 return SystemState.MOVE_TO_TARGET;
             case HOLD:
                 return SystemState.HOLD;
-            case LOWERING_TO_PLACE:
-                return SystemState.LOWERING_TO_PLACE;
             case DRIVER_CONTROLLED:
                 return SystemState.DRIVER_CONTROLLED;
         }
@@ -157,6 +154,7 @@ public class Elevator implements Subsystem {
         if(error < 0){
             feedForward = 0;
         }
+        motorPower = feedForward - correction;
         setMotorPowers(feedForward - correction);
     }
 
@@ -176,30 +174,6 @@ public class Elevator implements Subsystem {
         elevatorMotor.setPower(power);
     }
 
-    //LOWERING_TO_PLACE State
-    private SystemState handleTransitionToLOWERING_TO_PLACE(SystemState futureState){
-        motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(new MotionState(currentHeight,0,0,0),new MotionState(currentHeight-1,0,0,0),maxSpeed,maxAcceleration,maxJerk);
-        goalHeight = currentHeight - 4;
-        startTime = System.currentTimeMillis();
-        return handleDefaultTransitions(futureState);
-    }
-
-    private void updateLOWERING_TO_PLACEState(){
-        double t = (System.currentTimeMillis() - startTime) / 1000.0;
-        if(t > motionProfile.duration()){
-            handleTransitionToHOLDState(SystemState.HOLD);
-            goalHeight = motionProfile.end().getX();
-        }
-        MotionState targetState = motionProfile.get(t);
-        double error = getRelativeHeight() - targetState.getX();
-        double correction = pidfController.update(error);
-        double feedForward = calculateFeedForward(targetState,getCurrentMass());
-        if(error < 0){
-            feedForward = 0;
-        }
-        setMotorPowers(feedForward - correction);
-    }
-
     //DRIVER_CONTROLLED
     public void setDriverControlled(){
         handleDefaultTransitions(SystemState.DRIVER_CONTROLLED);
@@ -212,8 +186,12 @@ public class Elevator implements Subsystem {
     }
 
     public void updatePosition(){
-        currentHeight += (elevatorMotor.getCurrentPosition() - currentEncoder) / 753.2 * winchDiameter * gearRatioToWinch * Math.PI * CORRECTION_CONSTANT;
+        currentHeight += (elevatorMotor.getCurrentPosition() - currentEncoder) / 753.2 * WINCH_DIAMETER * GEAR_RATIO * Math.PI * CORRECTION_CONSTANT;
         currentEncoder = elevatorMotor.getCurrentPosition();
+    }
+
+    public double getMotorPower(){
+        return motorPower;
     }
 
     public double getRelativeHeight(){
@@ -221,7 +199,7 @@ public class Elevator implements Subsystem {
     }
 
     public double getAbsoluteHeight(){
-        return getRelativeHeight() + elevatorOffset;
+        return getRelativeHeight() + ELEVATOR_OFFSET;
     }
 
     private double calculateFeedForward(MotionState targetState, double mass){
@@ -256,10 +234,6 @@ public class Elevator implements Subsystem {
 
     public SystemState getCurrentState(){
         return currentState;
-    }
-
-    public void lowerToPlace(){
-        handleTransitionToLOWERING_TO_PLACE(SystemState.LOWERING_TO_PLACE);
     }
 
     public void resetEncoder(){

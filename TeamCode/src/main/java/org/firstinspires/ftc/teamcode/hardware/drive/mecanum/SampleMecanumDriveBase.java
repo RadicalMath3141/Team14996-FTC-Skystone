@@ -37,7 +37,7 @@ import java.util.List;
  */
 @Config
 public abstract class SampleMecanumDriveBase extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0.7, 0, 0.3);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0.9, 0, 0.1);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0.4, 0, 0.05);
 
     public enum Mode {

@@ -23,6 +23,7 @@ public class Intake implements Subsystem{
 
     public static double grabPosition = 0.3;
     public static double stoneHoldPosition = 0.67;
+    public static double grabberOutOfWayPosition = 0;
 
     //For Capstone Deploying Servo
     public static double capstoneHoldPosition = 0.55;
@@ -36,7 +37,7 @@ public class Intake implements Subsystem{
         if(intake == null){
             intake = new Intake(hardwareMap);
         }
-        grabberServo.setPosition(stoneHoldPosition);
+        grabberServo.setPosition(grabPosition);
         capstoneServo.setPosition(capstoneHoldPosition);
         releaseServo.setPosition(holdPosition);
         return intake;
@@ -53,6 +54,10 @@ public class Intake implements Subsystem{
 
     public void update(){
 
+    }
+
+    public void setIntakeFlat(){
+        grabberServo.setPosition(grabberOutOfWayPosition);
     }
 
     public void setReleaseServoOutOfWay(){
