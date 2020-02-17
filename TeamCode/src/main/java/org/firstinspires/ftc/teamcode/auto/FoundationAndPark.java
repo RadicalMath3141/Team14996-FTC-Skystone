@@ -7,7 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.paths.MovedFoundationToPark;
 import org.firstinspires.ftc.teamcode.paths.newpaths.BuildingZoneToFoundation;
+import org.firstinspires.ftc.teamcode.paths.newpaths.BuildingZoneToNeutralBridgeSide;
+import org.firstinspires.ftc.teamcode.paths.newpaths.BuildingZoneToWallSide;
 import org.firstinspires.ftc.teamcode.paths.newpaths.FoundationToMovedFoundation;
 import org.firstinspires.ftc.teamcode.paths.MovedFoundationToAllianceBridge;
 
@@ -61,7 +64,11 @@ public class FoundationAndPark extends LinearOpMode {
                 case MOVING_THE_FOUNDATION:
                     if(!robot.drive().isBusy()){
                         Subroutines.LIFT_FOUNDATION_GRABBER.runAction(robot);
-                        robot.drive().followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                        if(InformationAuto.isIfBridgeSidePark()){
+                            robot.drive().followTrajectory(new BuildingZoneToNeutralBridgeSide(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                        } else {
+                            robot.drive().followTrajectory(new BuildingZoneToWallSide(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                        }
                         currentState = AutoState.PARKING;
                     }
                     break;

@@ -6,32 +6,31 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.auto.InformationAuto;
 import org.firstinspires.ftc.teamcode.hardware.Intake;
+import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFarSkybridge;
 
 @Autonomous(name = "Park Auto")
 public class ParkAuto extends LinearOpMode {
 
-    private Intake intake;
-    private SampleMecanumDriveREVOptimized drive;
+    private Robot robot;
     public void runOpMode(){
-        drive = SampleMecanumDriveREVOptimized.getInstance(hardwareMap);
-        intake = Intake.getInstance(hardwareMap);
+        robot = Robot.getInstance(hardwareMap);
 
         if(InformationAuto.ifRedAlliance()){
-            drive.setPoseEstimate(new Pose2d(-36,-63,Math.toRadians(90)));
+            robot.drive().setPoseEstimate(new Pose2d(-36,-63,Math.toRadians(90)));
         } else {
-            drive.setPoseEstimate(new Pose2d(-36,63,Math.toRadians(-90)));
+            robot.drive().setPoseEstimate(new Pose2d(-36,63,Math.toRadians(-90)));
         }
         waitForStart();
-        intake.release();
+        robot.intake().release();
 
-        drive.followTrajectory(new LoadingZoneToFarSkybridge(InformationAuto.ifRedAlliance(),drive).toTrajectory());
+        robot.drive().followTrajectory(new LoadingZoneToFarSkybridge(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
 
         while(!isStopRequested()){
-            drive.update();
+            robot.drive().update();
         }
-
+        robot.stop();
     }
 
 }

@@ -31,6 +31,7 @@ public class Robot {
     private final int foundationIndex = 1;
     private final int elevatorIndex = 2;
     private final int driveIndex = 3;
+    private final int fourBarIndex = 4;
 
     public static Robot getInstance(HardwareMap hardwareMap){
         if(robotInstance == null){
@@ -48,6 +49,7 @@ public class Robot {
         subsystems.add(FoundationGrabber.getInstance(hardwareMap));
         subsystems.add(Elevator.getInstance(hardwareMap));
         subsystems.add(SampleMecanumDriveREVOptimized.getInstance(hardwareMap));
+        subsystems.add(FourBar.getInstance(hardwareMap));
         subroutines = new ArrayList<>();
         structureConstructor = new StructureConstructor(structure);
     }
@@ -82,6 +84,10 @@ public class Robot {
 
     public SampleMecanumDriveREVOptimized drive(){
         return (SampleMecanumDriveREVOptimized) subsystems.get(driveIndex);
+    }
+
+    public FourBar fourBar(){
+        return (FourBar) subsystems.get(fourBarIndex);
     }
 
     public void stop(){
