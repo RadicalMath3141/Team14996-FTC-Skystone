@@ -41,7 +41,6 @@ public class FoundationAndPark extends LinearOpMode {
             updateTelemetry();
         }
 
-        robot.intake().release();
         robot.drive().followTrajectory(new BuildingZoneToFoundation(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory());
         while(!isStopRequested()){
             switch (currentState){

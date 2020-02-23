@@ -28,27 +28,30 @@ public class CompetitionTeleop extends LinearOpMode {
     private static AUTO_TELEOP_STATES currentState = AUTO_TELEOP_STATES.MANUAL;
 
     public enum AUTO_TELEOP_STATES {
-        MANUAL, PRE_GRABBING, GRABBING, PRE_PLACING, PLACING, RELEASING;
+        MANUAL, INTAKING, GRABBING, PRE_PLACING, EXTENDED, PLACING, RELEASING;
 
         public static AUTO_TELEOP_STATES nextState(){
             switch(currentState){
                 case MANUAL:
-                    return PRE_GRABBING;
+                    return INTAKING;
 
-                case PRE_GRABBING:
+                case INTAKING:
                     return GRABBING;
 
                 case GRABBING:
                     return PRE_PLACING;
 
                 case PRE_PLACING:
+                    return EXTENDED;
+
+                case EXTENDED:
                     return PLACING;
 
                 case PLACING:
                     return RELEASING;
 
                 case RELEASING:
-                    return PRE_GRABBING;
+                    return INTAKING;
             }
             return null;
         }
@@ -56,9 +59,9 @@ public class CompetitionTeleop extends LinearOpMode {
         public static AUTO_TELEOP_STATES previousState(){
             switch(currentState){
                 case GRABBING:
-                    return PRE_GRABBING;
+                    return INTAKING;
 
-                case PRE_GRABBING:
+                case INTAKING:
                     return MANUAL;
 
                 case PRE_PLACING:
@@ -67,8 +70,11 @@ public class CompetitionTeleop extends LinearOpMode {
                 case PLACING:
                     return PRE_PLACING;
 
-                case RELEASING:
+                case EXTENDED:
                     return PLACING;
+
+                case RELEASING:
+                    return EXTENDED;
 
                 case MANUAL:
                     return MANUAL;
@@ -89,7 +95,6 @@ public class CompetitionTeleop extends LinearOpMode {
         currentState = AUTO_TELEOP_STATES.MANUAL;
         robot.elevator().resetEncoder();
         waitForStart();
-        Subroutines.RELEASE_INTAKE_RESET.runAction(robot);
         while (!isStopRequested()) {
 
             //Foundation Grabber
@@ -105,25 +110,29 @@ public class CompetitionTeleop extends LinearOpMode {
 
             //Intake Control
             if (buttonPad.ifOnceA()) {
-                robot.intake().setGrabbing();
-                transitionToState(AUTO_TELEOP_STATES.MANUAL);
+                Subroutines.INTAKE.runAction(robot);
             }
             if (buttonPad.ifOnceB()) {
-                robot.intake().open();
-                transitionToState(AUTO_TELEOP_STATES.MANUAL);
+                Subroutines.EXHAUST.runAction(robot);
             }
 
-            if(buttonPad.ifOnceX()){
-                Subroutines.DEPLOY_CAPSTONE.runAction(robot);
-                transitionToState(AUTO_TELEOP_STATES.MANUAL);
+            //Four Bar Control
+            if (buttonPad.ifOnceX()){
+                robot.fourBar().transitionToNextState();
+            }
+
+            if(buttonPad.ifOnceY()){
+                robot.fourBar().transitionToPreviousState();
             }
 
             //Elevator Control
             if(gamepad2.left_stick_y > 0.05 || gamepad2.left_stick_y < -0.05){
                 robot.elevator().setMotorPowers(gamepad2.left_stick_y);
-                robot.elevator().setDriverControlled();
+                if(!(currentState == AUTO_TELEOP_STATES.PLACING||currentState == AUTO_TELEOP_STATES.PRE_PLACING)){
+                    becomeManual();
+                }
             } else {
-                robot.elevator().setMotorPowers(gamepad2.left_stick_y);
+                robot.elevator().setMotorPowers(0);
             }
             
             //Drive Control
@@ -194,17 +203,23 @@ public class CompetitionTeleop extends LinearOpMode {
                 becomeManual();
                 return;
 
-            case PRE_GRABBING:
+            case INTAKING:
                 Subroutines.GO_TO_ZERO.runAction(robot);
-                Subroutines.RELEASE_STONE.runAction(robot);
+                Subroutines.INTAKE.runAction(robot);
+                Subroutines.LOWER_FOUR_BAR.runAction(robot);
                 return;
 
             case GRABBING:
-                Subroutines.GRAB_STONE.runAction(robot);
+                Subroutines.IDLE_INTAKE.runAction(robot);
+                Subroutines.GRAB_FOUR_BAR.runAction(robot);
                 return;
 
             case PRE_PLACING:
                 Subroutines.GO_TO_CURRENT_LAYER.runAction(robot);
+                return;
+
+            case EXTENDED:
+                Subroutines.EXTEND_FOUR_BAR.runAction(robot);
                 return;
 
             case PLACING:
@@ -212,8 +227,8 @@ public class CompetitionTeleop extends LinearOpMode {
                 return;
 
             case RELEASING:
+                Subroutines.RELEASE_FOUR_BAR.runAction(robot);
                 robot.setToNextLayerHeight();
-                Subroutines.RELEASE_STONE.runAction(robot);
                 return;
         }
     }

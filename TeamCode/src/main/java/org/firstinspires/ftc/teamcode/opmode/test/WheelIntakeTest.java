@@ -13,14 +13,14 @@ public class WheelIntakeTest extends LinearOpMode {
 
     public void runOpMode(){
 
-        rightWheelMotor = hardwareMap.dcMotor.get("rightWheelMotor");
-        leftWheelMotor = hardwareMap.dcMotor.get("leftWheelMotor");
+        rightWheelMotor = hardwareMap.dcMotor.get("rightIntakeMotor");
+        leftWheelMotor = hardwareMap.dcMotor.get("leftIntakeMotor");
 
         leftWheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         waitForStart();
         while(!isStopRequested()){
-            rightWheelMotor.setPower(gamepad1.left_stick_y);
-            leftWheelMotor.setPower(gamepad1.left_stick_y);
+            rightWheelMotor.setPower(0.6);
+            leftWheelMotor.setPower(0.6);
         }
     }
 

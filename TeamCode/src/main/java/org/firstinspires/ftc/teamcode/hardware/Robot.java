@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.auto.structurebuilder.Structure;
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.StructureConstructor;
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.OneByOneByNine;
 import org.firstinspires.ftc.teamcode.auto.subroutines.DelayedSubroutine;
+import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class Robot {
     private static Structure structure = OneByOneByNine.toStructure();
 
     //Indices of subsystems
-    private final int intakeIndex = 0;
+    private final int wheelIntakeIndex = 0;
     private final int foundationIndex = 1;
     private final int elevatorIndex = 2;
     private final int driveIndex = 3;
@@ -38,14 +39,13 @@ public class Robot {
             robotInstance = new Robot(hardwareMap);
         }
         robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
-        robotInstance.intake().setHold();
-        robotInstance.intake().open();
+        robotInstance.intake().setHolding();
         return robotInstance;
     }
 
     private Robot (HardwareMap hardwareMap){
         subsystems = new ArrayList<>();
-        subsystems.add(Intake.getInstance(hardwareMap));
+        subsystems.add(WheelIntake.getInstance(hardwareMap));
         subsystems.add(FoundationGrabber.getInstance(hardwareMap));
         subsystems.add(Elevator.getInstance(hardwareMap));
         subsystems.add(SampleMecanumDriveREVOptimized.getInstance(hardwareMap));
@@ -70,8 +70,8 @@ public class Robot {
         }
     }
 
-    public Intake intake(){
-        return (Intake) subsystems.get(intakeIndex);
+    public WheelIntake intake(){
+        return (WheelIntake) subsystems.get(wheelIntakeIndex);
     }
 
     public FoundationGrabber foundationGrabber(){
@@ -126,6 +126,29 @@ public class Robot {
     public final Function0<Unit> goToCurrentLayer = new Function0<Unit>(){
         public Unit invoke() {
             elevator().setPosition(7.0);
+            return Unit.INSTANCE;
+        }
+    };
+
+    public final Function0<Unit> lowerFoundationGrabber = new Function0<Unit>(){
+        public Unit invoke() {
+            Subroutines.LOWER_FOUNDATION_GRABBER.runAction(robotInstance);
+            return Unit.INSTANCE;
+        }
+    };
+
+    public final Function0<Unit> raiseFoundationGrabber = new Function0<Unit>() {
+        @Override
+        public Unit invoke() {
+            Subroutines.LIFT_FOUNDATION_GRABBER.runAction(robotInstance);
+            return Unit.INSTANCE;
+        }
+    };
+
+    public final Function0<Unit> grabAndPlace = new Function0<Unit>() {
+        @Override
+        public Unit invoke() {
+            Subroutines.GRAB_AND_PLACE.runAction(robotInstance);
             return Unit.INSTANCE;
         }
     };

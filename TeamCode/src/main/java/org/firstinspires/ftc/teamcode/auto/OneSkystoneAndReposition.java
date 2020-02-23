@@ -8,10 +8,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.auto.subroutines.DelayedSubroutine;
 import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.hardware.drive.localizer.TemporaryLocalizer;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart2;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToSkystone;
+import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFarSkystone;
 import org.firstinspires.ftc.teamcode.paths.MovedFoundationToAllianceBridge;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
 import org.firstinspires.ftc.teamcode.vision.SkystoneVision;
@@ -78,15 +75,13 @@ public class OneSkystoneAndReposition extends LinearOpMode {
         while(!isStopRequested()){
             switch(currentState){
                 case SEARCHING:
-                    Subroutines.RELEASE_INTAKE_RESET.runAction(robot);
-                    robot.actionCache().add(new DelayedSubroutine(100,Subroutines.RELEASE_STONE));
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
                         webcam.stopStreaming();
                         resetTime();
 
                         //Path to Follow
-                        robot.drive().followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory(skystonePosition));
+                        robot.drive().followTrajectory(new LoadingZoneToFarSkystone(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory(skystonePosition));
                         break;
                     }
                     if(skystonePosition == SkystonePosition.Positions.UNKNOWN && System.currentTimeMillis() - startTime > 500){
@@ -99,7 +94,6 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                     if (!robot.drive().isBusy()) {
                         resetTime();
                         currentState = AutoStates.INTAKING;
-                        robot.intake().setGrabbing();
                     }
                     break;
 
@@ -127,7 +121,6 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                             resetTime();
                             ++foundationPart;
                             currentState = AutoStates.PLACING_SKYSTONE;
-                            robot.intake().setIntakeFlat();
                         }
                     }
                     break;

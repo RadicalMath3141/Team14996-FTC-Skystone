@@ -47,7 +47,6 @@ public class SpeedOmeter extends LinearOpMode {
         robot.drive().setPoseEstimate(new Pose2d(0,0,0));
         previousPosition = robot.drive().getPoseEstimate();
         waitForStart();
-        robot.intake().release();
         previousTime = System.currentTimeMillis();
 
         while (!isStopRequested()) {

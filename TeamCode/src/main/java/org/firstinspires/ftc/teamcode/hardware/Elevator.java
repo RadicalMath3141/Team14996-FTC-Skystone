@@ -16,8 +16,8 @@ import org.firstinspires.ftc.teamcode.util.Comparison;
 @Config
 public class Elevator implements Subsystem {
 
-    private DcMotor elevatorMotor;
-    private DigitalChannel magneticLimitSwitch;
+    private DcMotor elevatorMotorRight;
+    private DcMotor elevatorMotorLeft;
 
     //PID constants for the elevator
     public static double kP = 0.5;
@@ -39,7 +39,7 @@ public class Elevator implements Subsystem {
 
     public static double CORRECTION_CONSTANT = 1.19;
 
-    private static final double WINCH_DIAMETER = 1.55;
+    private static final double WINCH_DIAMETER = 3;
     private static final double GEAR_RATIO = -1.0;
     private static final double ELEVATOR_OFFSET = 2.5;
 
@@ -73,12 +73,14 @@ public class Elevator implements Subsystem {
     }
 
     public Elevator(HardwareMap hardwareMap){
-        elevatorMotor = (DcMotor) hardwareMap.get("elevatorMotor");
-        elevatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        elevatorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        elevatorMotorRight = hardwareMap.dcMotor.get("elevatorMotorRight");
+        elevatorMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elevatorMotorRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        magneticLimitSwitch = hardwareMap.get(DigitalChannel.class, "elevatorSwitch");
-        magneticLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+        elevatorMotorLeft = hardwareMap.dcMotor.get("elevatorMotorLeft");
+        elevatorMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elevatorMotorLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
         motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(new MotionState(0,0),new MotionState(0,0),maxSpeed,maxAcceleration,maxJerk);
         startTime = System.currentTimeMillis();
 
@@ -98,10 +100,6 @@ public class Elevator implements Subsystem {
                 break;
         }
 
-        //Zero Position if True
-        if(!magneticLimitSwitch.getState()){
-            zeroSensors();
-        }
         updatePosition();
     }
 
@@ -128,8 +126,8 @@ public class Elevator implements Subsystem {
     }
 
     private void updateIDLEState(){
-        if(!Comparison.equalToEpsilon(elevatorMotor.getPower(),0)){
-            elevatorMotor.setPower(0);
+        if(!Comparison.equalToEpsilon(elevatorMotorRight.getPower(),0)){
+            setMotorPowers(0);
         }
     }
 
@@ -171,7 +169,8 @@ public class Elevator implements Subsystem {
     }
 
     public void setMotorPowers(double power){
-        elevatorMotor.setPower(power);
+        elevatorMotorRight.setPower(power);
+        elevatorMotorLeft.setPower(power);
     }
 
     //DRIVER_CONTROLLED
@@ -186,8 +185,8 @@ public class Elevator implements Subsystem {
     }
 
     public void updatePosition(){
-        currentHeight += (elevatorMotor.getCurrentPosition() - currentEncoder) / 753.2 * WINCH_DIAMETER * GEAR_RATIO * Math.PI * CORRECTION_CONSTANT;
-        currentEncoder = elevatorMotor.getCurrentPosition();
+        currentHeight += (elevatorMotorRight.getCurrentPosition() - currentEncoder) / 753.2 * WINCH_DIAMETER * GEAR_RATIO * Math.PI * CORRECTION_CONSTANT;
+        currentEncoder = elevatorMotorRight.getCurrentPosition();
     }
 
     public double getMotorPower(){
@@ -217,7 +216,8 @@ public class Elevator implements Subsystem {
 
     @Override
     public void zeroSensors() {
-        elevatorMotor.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
         currentHeight = 0;
     }
 
@@ -229,7 +229,7 @@ public class Elevator implements Subsystem {
 
     public void setZero(){
         currentHeight = 0;
-        currentEncoder = elevatorMotor.getCurrentPosition();
+        currentEncoder = elevatorMotorRight.getCurrentPosition();
     }
 
     public SystemState getCurrentState(){
@@ -237,9 +237,13 @@ public class Elevator implements Subsystem {
     }
 
     public void resetEncoder(){
-        elevatorMotor.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        elevatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        currentEncoder = elevatorMotor.getCurrentPosition();
+        elevatorMotorRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        elevatorMotorLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        currentEncoder = elevatorMotorRight.getCurrentPosition();
     }
 
     public double getEncoderPosition(){

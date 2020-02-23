@@ -8,13 +8,12 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.auto.subroutines.DelayedSubroutine;
 import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.paths.BackwardsMovedFoundationToAllianceBridge;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart1;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFoundationPart2;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToMovedFoundation;
-import org.firstinspires.ftc.teamcode.paths.LoadingZoneToSkystone;
+import org.firstinspires.ftc.teamcode.paths.LoadingZoneToFarSkystone;
 import org.firstinspires.ftc.teamcode.paths.MovedFoundationToAllianceBridge;
-import org.firstinspires.ftc.teamcode.paths.MovedFoundationToSecondSkystone;
+import org.firstinspires.ftc.teamcode.paths.MovedFoundationToPark;
+import org.firstinspires.ftc.teamcode.paths.newpaths.FoundationToNearSkystone;
+import org.firstinspires.ftc.teamcode.paths.newpaths.LoadingZoneToFoundationReverse;
+import org.firstinspires.ftc.teamcode.paths.newpaths.LoadingZoneToMovedFoundation;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
 import org.firstinspires.ftc.teamcode.vision.SkystoneVision;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -30,17 +29,11 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
     private SkystonePosition.Positions skystonePosition = SkystonePosition.Positions.UNKNOWN;
     private enum AutoStates {
-        SEARCHING, BACKING_UP, GOING_TO_FIRST_SKYSTONE, INTAKING, GOING_TO_FOUNDATION, REPOSITIONING, PLACING_SKYSTONE, GOING_TO_PARK, GOING_TO_SECOND_SKYSTONE
+        SEARCHING, GOING_TO_FIRST_SKYSTONE, GOING_TO_FOUNDATION, GOING_TO_SECOND_SKYSTONE, GOING_TO_MOVED_FOUNDATION, PARKING
     }
 
     private AutoStates currentState = AutoStates.SEARCHING;
     private long startTime;
-
-    //0 = About to Arc Out, 1 = Moving Toward Wall
-    private int repositionManueverCount = 0;
-
-    //0 is Part 1 , 1 is Part 2
-    private int foundationPart = 0;
 
     private boolean isFirstStoneDone = false;
 
@@ -79,19 +72,18 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
         resetTime();
         robot.elevator().setZero();
         robot.resetStructure();
-
+        robot.intake().setReleasing();
+        robot.actionCache().add(new DelayedSubroutine(300,Subroutines.INTAKE));
         while(!isStopRequested()){
             switch(currentState){
                 case SEARCHING:
-                    Subroutines.RELEASE_INTAKE_RESET.runAction(robot);
-                    robot.actionCache().add(new DelayedSubroutine(100,Subroutines.RELEASE_STONE));
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
                         webcam.stopStreaming();
                         resetTime();
 
                         //Path to Follow
-                        robot.drive().followTrajectory(new LoadingZoneToSkystone(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory(skystonePosition));
+                        robot.drive().followTrajectory(new LoadingZoneToFarSkystone(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory(skystonePosition));
                         break;
                     }
                     if(skystonePosition == SkystonePosition.Positions.UNKNOWN && System.currentTimeMillis() - startTime > 500){
@@ -103,112 +95,40 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                 case GOING_TO_FIRST_SKYSTONE:
                     if (!robot.drive().isBusy()) {
                         resetTime();
-                        currentState = AutoStates.INTAKING;
-                        robot.intake().setGrabbing();
-                    }
-                    break;
-
-                case INTAKING:
-                    if(System.currentTimeMillis() - startTime > 500){
-                        resetTime();
-                        currentState = AutoStates.BACKING_UP;
-                        robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(20.0).build());
-                    }
-                    break;
-
-                case BACKING_UP:
-                    if(!robot.drive().isBusy()){
-                        resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
-
-                        if(!isFirstStoneDone){
-                            robot.drive().followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), robot).toTrajectory());
-                        } else {
-                            robot.drive().followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),robot).toTrajectory());
-                        }
+                        Subroutines.IDLE_INTAKE.runAction(robot);
+                        robot.drive().followTrajectory(new LoadingZoneToFoundationReverse(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory(robot));
                     }
+                    break;
 
                 case GOING_TO_FOUNDATION:
                     if(!robot.drive().isBusy()){
-                        if(foundationPart == 0){
-                            robot.drive().followTrajectory(new LoadingZoneToFoundationPart2(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
-                            ++foundationPart;
-                        } else if(foundationPart == 1 || isFirstStoneDone){
-                            resetTime();
-                            ++foundationPart;
-                            currentState = AutoStates.PLACING_SKYSTONE;
-                            robot.intake().setIntakeFlat();
-                        }
-                    }
-                    break;
-
-                case PLACING_SKYSTONE:
-                    if(System.currentTimeMillis() - startTime > 250){
                         resetTime();
-                        if(!isFirstStoneDone){
-                            currentState = AutoStates.REPOSITIONING;
-                            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(7).build());
-                        } else {
-                            currentState = AutoStates.GOING_TO_PARK;
-                            robot.drive().followTrajectory(new BackwardsMovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory());
-                            robot.actionCache().add(new DelayedSubroutine(100,Subroutines.GO_TO_ZERO));
-                        }
-                    }
-                    break;
-
-                case REPOSITIONING:
-                    if(!robot.drive().isBusy()){
-                        if(repositionManueverCount == 0){
-                            robot.actionCache().add(new DelayedSubroutine(300, Subroutines.GO_TO_ZERO));
-                            if(InformationAuto.ifRedAlliance()){
-                                robot.drive().turn(Math.toRadians(-180));
-                            } else {
-                                robot.drive().turn(Math.toRadians(180));
-                            }
-                            ++repositionManueverCount;
-                        } else if(repositionManueverCount == 1) {
-                            ++repositionManueverCount;
-                            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(17).build());
-                            resetTime();
-                        } else if(repositionManueverCount == 2) {
-                            robot.actionCache().add(new DelayedSubroutine(0, Subroutines.LOWER_FOUNDATION_GRABBER));
-                            if (System.currentTimeMillis() - startTime > 2500) {
-                                robot.drive().followTrajectory(robot.drive().trajectoryBuilder().forward(45).build());
-                                ++repositionManueverCount;
-                            }
-                        } else if(repositionManueverCount == 3) {
-                            if (InformationAuto.ifRedAlliance()) {
-                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(110)),Math.toRadians(180),Math.toRadians(180),Math.toRadians(0));
-                            } else {
-                                robot.drive().turn(-(robot.drive().getPoseEstimate().getHeading() - Math.toRadians(270)),Math.toRadians(180),Math.toRadians(180),Math.toRadians(0));
-                            }
-                            ++repositionManueverCount;
-                            resetTime();
-                        } else if(repositionManueverCount == 4) {
-                            if (System.currentTimeMillis() - startTime > 500) {
-                                robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(20.0).build());
-                                robot.actionCache().add(new DelayedSubroutine(100, Subroutines.LIFT_FOUNDATION_GRABBER));
-                                ++repositionManueverCount;
-                            }
-                        } else if(repositionManueverCount == 5){
-                            ++repositionManueverCount;
-                        } else {
-                            resetTime();
-                            currentState = AutoStates.GOING_TO_PARK;
-                            robot.drive().followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory());
-                        }
+                        currentState = AutoStates.GOING_TO_SECOND_SKYSTONE;
+                        robot.actionCache().add(new DelayedSubroutine(300,Subroutines.INTAKE));
+                        Subroutines.GRAB_AND_PLACE.runAction(robot);
+                        robot.drive().followTrajectory(new FoundationToNearSkystone(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory(skystonePosition,robot));
                     }
                     break;
 
                 case GOING_TO_SECOND_SKYSTONE:
                     if (!robot.drive().isBusy()) {
                         resetTime();
-                        currentState = AutoStates.INTAKING;
-                        robot.intake().setGrabbing();
+                        Subroutines.IDLE_INTAKE.runAction(robot);
+                        robot.drive().followTrajectory(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory(robot));
+                        currentState = AutoStates.GOING_TO_MOVED_FOUNDATION;
                     }
                     break;
 
-                case GOING_TO_PARK:
+                case GOING_TO_MOVED_FOUNDATION:
+                    if(!robot.drive().isBusy()){
+                        robot.drive().followTrajectory(new MovedFoundationToAllianceBridge(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                        resetTime();
+                        currentState = AutoStates.PARKING;
+                    }
+                    break;
+
+                case PARKING:
                     break;
 
             }

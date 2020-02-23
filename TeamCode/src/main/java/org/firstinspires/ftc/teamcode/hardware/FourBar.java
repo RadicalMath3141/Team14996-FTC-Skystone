@@ -17,12 +17,12 @@ public class FourBar implements Subsystem {
     private double releasePosition = 1.0;
 
    //rightMoverServo Positions
-    private double retractedRightPosition = 0.0;
+    private double retractedRightPosition = 0.3;
     private double extendedRightPosition = 1.0;
 
     //leftMoverServo Positions
-    private double retractedLeftPosition = 0.0;
-    private double extendedLeftPosition = 1.0;
+    private double retractedLeftPosition = 0.8;
+    private double extendedLeftPosition = 0.05;
 
     public enum FourBarState {
         PRE_GRABBING, GRABBING, EXTENDED_OUT, RELEASED
@@ -38,9 +38,9 @@ public class FourBar implements Subsystem {
     }
 
     private FourBar(HardwareMap hardwareMap){
-        grabberServo = hardwareMap.servo.get("grabberServo");
-        rightMoverServo = hardwareMap.servo.get("rightMoverServo");
-        leftMoverServo = hardwareMap.servo.get("leftMoverServo");
+        grabberServo = hardwareMap.servo.get("stoneGrabberServo");
+        rightMoverServo = hardwareMap.servo.get("rightFourBarMover");
+        leftMoverServo = hardwareMap.servo.get("leftFourBarMover");
     }
 
     public void transitionToPreviousState(){

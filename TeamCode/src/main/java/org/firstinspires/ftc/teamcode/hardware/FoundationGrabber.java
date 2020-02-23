@@ -60,8 +60,8 @@ public class FoundationGrabber implements Subsystem {
     }
 
     public FoundationGrabber(HardwareMap hardwareMap){
-        rightServo = (Servo) hardwareMap.get("rightServo");
-        leftServo = (Servo) hardwareMap.get("leftServo");
+        rightServo = (Servo) hardwareMap.get("rightGrabberServo");
+        leftServo = (Servo) hardwareMap.get("leftGrabberServo");
     }
 
     public void update(){

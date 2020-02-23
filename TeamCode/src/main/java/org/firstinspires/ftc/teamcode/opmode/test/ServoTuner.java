@@ -24,8 +24,8 @@ public class ServoTuner extends LinearOpMode {
             testServo = servos.get(servosIndex);
         }
         waitForStart();
+        testServo = servos.get(servosIndex);
         while(!isStopRequested()){
-            testServo = servos.get(servosIndex);
             testServo.setPosition(position);
             telemetry.addData("Position:", position);
             telemetry.addData("Selected Servo: ", hardwareMap.getNamesOf(testServo));
@@ -45,6 +45,7 @@ public class ServoTuner extends LinearOpMode {
                 } else {
                     servosIndex = 0;
                 }
+                testServo = servos.get(servosIndex);
             }
 
             if(omegaGamepad.ifOnceLeftBumper()){
@@ -53,6 +54,7 @@ public class ServoTuner extends LinearOpMode {
                 } else if(servos.size() > 0){
                     servosIndex = servos.size() - 1;
                 }
+                testServo = servos.get(servosIndex);
             }
             omegaGamepad.update();
         }

@@ -6,12 +6,12 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 
-public class LoadingZoneToSkystone {
+public class LoadingZoneToFarSkystone {
 
     private boolean redAlliance;
     private SampleMecanumDriveREVOptimized drive;
 
-    public LoadingZoneToSkystone(boolean redAlliance, SampleMecanumDriveREVOptimized drive){
+    public LoadingZoneToFarSkystone(boolean redAlliance, SampleMecanumDriveREVOptimized drive){
         this.redAlliance=redAlliance;
         this.drive = drive;
     }
@@ -20,23 +20,23 @@ public class LoadingZoneToSkystone {
     public Trajectory toTrajectory (SkystonePosition.Positions skystonePosition){
         if(redAlliance){
             if(skystonePosition == SkystonePosition.Positions.LEFT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-41,-22,Math.toRadians(90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-67,-22,Math.toRadians(135))).build();
             } else if(skystonePosition == SkystonePosition.Positions.MIDDLE){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-33,-22,Math.toRadians(90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-59,-22,Math.toRadians(135))).build();
             } else if(skystonePosition == SkystonePosition.Positions.RIGHT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-25,-25,Math.toRadians(90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-51,-22,Math.toRadians(135))).build();
             }
 
         } else {
             if(skystonePosition == SkystonePosition.Positions.RIGHT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-40,22,Math.toRadians(-90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-67,22,Math.toRadians(225))).build();
             } else if(skystonePosition == SkystonePosition.Positions.MIDDLE){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-36,22,Math.toRadians(-90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-59,22,Math.toRadians(225))).build();
             } else if(skystonePosition == SkystonePosition.Positions.LEFT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(-28,22,Math.toRadians(-90))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(-51,22,Math.toRadians(225))).build();
             }
         }
-        return drive.trajectoryBuilder().splineTo(new Pose2d(-44,-36,Math.toRadians(90))).build();
+        return drive.trajectoryBuilder().splineTo(new Pose2d(-67,-22,Math.toRadians(135))).build();
     }
 }
 
