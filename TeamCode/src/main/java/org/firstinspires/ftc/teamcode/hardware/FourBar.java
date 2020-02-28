@@ -13,16 +13,16 @@ public class FourBar implements Subsystem {
 
     //List of Different Servo Positions
     //grabberServo Positions
-    private double grabPosition = 0.0;
-    private double releasePosition = 1.0;
+    private double grabPosition = 0.85;
+    private double releasePosition = 0.7;
 
    //rightMoverServo Positions
-    private double retractedRightPosition = 0.3;
-    private double extendedRightPosition = 1.0;
+    private double retractedRightPosition = 0.07;
+    private double extendedRightPosition = 0.9;
 
     //leftMoverServo Positions
-    private double retractedLeftPosition = 0.8;
-    private double extendedLeftPosition = 0.05;
+    private double retractedLeftPosition = 0.93;
+    private double extendedLeftPosition = 0.1;
 
     public enum FourBarState {
         PRE_GRABBING, GRABBING, EXTENDED_OUT, RELEASED

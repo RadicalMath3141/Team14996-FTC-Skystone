@@ -25,7 +25,7 @@ public class WheelIntake implements Subsystem {
     private double leftHoldPosition = 1.0;
 
     private final double intakeSpeed = 0.6;
-    private final double exhaustingSpeed = -0.6;
+    private final double exhaustingSpeed = -0.4;
 
     public enum State {
         INTAKING, EXHAUSTING, IDLE
@@ -44,8 +44,8 @@ public class WheelIntake implements Subsystem {
         rightMotor = hardwareMap.dcMotor.get("rightIntakeMotor");
         leftMotor = hardwareMap.dcMotor.get("leftIntakeMotor");
         leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightReleaseServo = hardwareMap.servo.get("");
-        leftReleaseServo = hardwareMap.servo.get("");
+        rightReleaseServo = hardwareMap.servo.get("intakeDeployServoRight");
+        leftReleaseServo = hardwareMap.servo.get("intakeDeployServoLeft");
     }
 
     public void update(){

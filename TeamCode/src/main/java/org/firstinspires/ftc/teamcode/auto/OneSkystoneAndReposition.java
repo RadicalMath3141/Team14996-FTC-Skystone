@@ -109,13 +109,11 @@ public class OneSkystoneAndReposition extends LinearOpMode {
                     if(!robot.drive().isBusy()){
                         resetTime();
                         currentState = AutoStates.GOING_TO_FOUNDATION;
-                        robot.drive().followTrajectory(new LoadingZoneToFoundationPart1(InformationAuto.ifRedAlliance(), robot).toTrajectory());
                     }
 
                 case GOING_TO_FOUNDATION:
                     if(!robot.drive().isBusy()){
                         if(foundationPart == 0){
-                            robot.drive().followTrajectory(new LoadingZoneToFoundationPart2(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
                             ++foundationPart;
                         } else if(foundationPart == 1){
                             resetTime();

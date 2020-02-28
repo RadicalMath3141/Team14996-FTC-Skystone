@@ -185,7 +185,7 @@ public class Elevator implements Subsystem {
     }
 
     public void updatePosition(){
-        currentHeight += (elevatorMotorRight.getCurrentPosition() - currentEncoder) / 753.2 * WINCH_DIAMETER * GEAR_RATIO * Math.PI * CORRECTION_CONSTANT;
+        currentHeight += (elevatorMotorRight.getCurrentPosition() - currentEncoder) / 1425.2 * WINCH_DIAMETER * GEAR_RATIO * Math.PI * CORRECTION_CONSTANT;
         currentEncoder = elevatorMotorRight.getCurrentPosition();
     }
 

@@ -40,6 +40,7 @@ public class Robot {
         }
         robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
         robotInstance.intake().setHolding();
+        robotInstance.fourBar().transitionToState(FourBar.FourBarState.PRE_GRABBING);
         return robotInstance;
     }
 
@@ -122,34 +123,4 @@ public class Robot {
     public ArrayList<DelayedSubroutine> actionCache(){
         return subroutines;
     }
-
-    public final Function0<Unit> goToCurrentLayer = new Function0<Unit>(){
-        public Unit invoke() {
-            elevator().setPosition(7.0);
-            return Unit.INSTANCE;
-        }
-    };
-
-    public final Function0<Unit> lowerFoundationGrabber = new Function0<Unit>(){
-        public Unit invoke() {
-            Subroutines.LOWER_FOUNDATION_GRABBER.runAction(robotInstance);
-            return Unit.INSTANCE;
-        }
-    };
-
-    public final Function0<Unit> raiseFoundationGrabber = new Function0<Unit>() {
-        @Override
-        public Unit invoke() {
-            Subroutines.LIFT_FOUNDATION_GRABBER.runAction(robotInstance);
-            return Unit.INSTANCE;
-        }
-    };
-
-    public final Function0<Unit> grabAndPlace = new Function0<Unit>() {
-        @Override
-        public Unit invoke() {
-            Subroutines.GRAB_AND_PLACE.runAction(robotInstance);
-            return Unit.INSTANCE;
-        }
-    };
 }

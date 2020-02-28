@@ -17,9 +17,9 @@ public class FirstSkystoneToFoundation {
 
     public Trajectory toTrajectory (){
         if(redAlliance){
-            return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(55,-23,0)).build();
+            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(55,-23,0)).build();
         }
-        return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(55,23,0)).build();
+        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(55,23,0)).build();
     }
 
 }

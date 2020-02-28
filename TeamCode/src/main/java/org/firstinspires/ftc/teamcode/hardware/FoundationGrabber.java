@@ -30,7 +30,7 @@ public class FoundationGrabber implements Subsystem {
             }
         }, DOWN_LEFT{
             public double getPosition() {
-                return 0.5;
+                return 0.6;
             }
         }, READY_RIGHT{
             public double getPosition(){

@@ -4,6 +4,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
+import org.firstinspires.ftc.teamcode.auto.subroutines.SubroutineHandler;
+import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 
@@ -19,9 +21,9 @@ public class LoadingZoneToMovedFoundation {
 
     public Trajectory toTrajectory (Robot robot){
         if(redAlliance){
-            return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(-10,-40,Math.toRadians(180))).splineTo(new Pose2d(20,-40,Math.toRadians(180))).addMarker(new Vector2d(48,-40),robot.grabAndPlace).splineTo(new Pose2d(60,-40,Math.toRadians(180))).build();
+            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(-10,-40,Math.toRadians(180))).splineTo(new Pose2d(20,-40,Math.toRadians(180))).addSpatialMarker(new Vector2d(48,-40),new SubroutineHandler(robot, Subroutines.GRAB_AND_PLACE)).splineTo(new Pose2d(60,-40,Math.toRadians(180))).build();
         }
-        return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(20,40,Math.toRadians(180))).addMarker(new Vector2d(48,40),robot.grabAndPlace).splineTo(new Pose2d(60,40,Math.toRadians(180))).build();
+        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(20,40,Math.toRadians(180))).addSpatialMarker(new Vector2d(48,40),new SubroutineHandler(robot, Subroutines.GRAB_AND_PLACE)).splineTo(new Pose2d(60,40,Math.toRadians(180))).build();
     }
 
 }

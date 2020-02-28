@@ -17,9 +17,9 @@ public class BuildingZoneToFoundation {
 
     public Trajectory toTrajectory (){
         if(redAlliance){
-            return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(60,-23,Math.toRadians(270))).build();
+            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(60,-23,Math.toRadians(270))).build();
         }
-        return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(60,23,Math.toRadians(270))).build();
+        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(60,23,Math.toRadians(270))).build();
     }
 
 }

@@ -258,9 +258,9 @@ public class CompetitionTeleop extends LinearOpMode {
         //Left Front is Index 0, Left Back is Index 1, Right Front is Index 2, Right Back is Index 3
         List<Double> powerValues = new ArrayList<>();
 
-        powerValues.add(velocityX + velocityY - velocityR - anglePowerCorrection);
-
         powerValues.add(velocityX - velocityY - velocityR - anglePowerCorrection);
+
+        powerValues.add(velocityX + velocityY - velocityR - anglePowerCorrection);
 
         powerValues.add(velocityX + velocityY + velocityR + anglePowerCorrection);
 

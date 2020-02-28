@@ -17,9 +17,9 @@ public class BackwardsMovedFoundationToAllianceBridge {
 
     public Trajectory toTrajectory (){
         if(redAlliance){
-            return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(0,-40,Math.toRadians(180))).build();
+            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(0,-40,Math.toRadians(180))).build();
         }
-        return drive.trajectoryBuilder().reverse().splineTo(new Pose2d(-3,48,Math.toRadians(180))).build();
+        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(-3,48,Math.toRadians(180))).build();
     }
 
 }
