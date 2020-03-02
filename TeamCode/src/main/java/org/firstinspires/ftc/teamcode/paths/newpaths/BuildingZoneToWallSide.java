@@ -3,14 +3,14 @@ package org.firstinspires.ftc.teamcode.paths.newpaths;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 
 public class BuildingZoneToWallSide {
 
     private boolean redAlliance;
-    private SampleMecanumDriveREVOptimized drive;
+    private SampleMecanumDrive drive;
 
-    public BuildingZoneToWallSide(boolean redAlliance, SampleMecanumDriveREVOptimized drive){
+    public BuildingZoneToWallSide(boolean redAlliance, SampleMecanumDrive drive){
         this.redAlliance=redAlliance;
         this.drive = drive;
     }

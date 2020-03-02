@@ -105,7 +105,7 @@ public class SensorColor extends LinearOpMode {
     boolean bCurrState = false;
 
     // Get a reference to our sensor object.
-    colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+    colorSensor = hardwareMap.get(NormalizedColorSensor.class, "colorSensor");
 
     // If possible, turn the light on in the beginning (it might already be on anyway,
     // we just make sure it is if we can).
@@ -183,6 +183,7 @@ public class SensorColor extends LinearOpMode {
               .addData("g", "%02x", Color.green(color))
               .addData("b", "%02x", Color.blue(color));
       telemetry.update();
+
 
       // convert the RGB values to HSV values.
       Color.RGBToHSV(Color.red(color), Color.green(color), Color.blue(color), hsvValues);

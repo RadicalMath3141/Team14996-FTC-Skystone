@@ -6,14 +6,11 @@ import org.firstinspires.ftc.teamcode.auto.structurebuilder.Structure;
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.StructureConstructor;
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.OneByOneByNine;
 import org.firstinspires.ftc.teamcode.auto.subroutines.DelayedSubroutine;
-import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
+import java.util.ListIterator;
 
 public class Robot {
 
@@ -40,7 +37,7 @@ public class Robot {
         }
         robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
         robotInstance.intake().setHolding();
-        robotInstance.fourBar().transitionToState(FourBar.FourBarState.PRE_GRABBING);
+        robotInstance.fourBar().transitionToState(FourBar.FourBarState.LIFTED);
         return robotInstance;
     }
 
@@ -49,7 +46,7 @@ public class Robot {
         subsystems.add(WheelIntake.getInstance(hardwareMap));
         subsystems.add(FoundationGrabber.getInstance(hardwareMap));
         subsystems.add(Elevator.getInstance(hardwareMap));
-        subsystems.add(SampleMecanumDriveREVOptimized.getInstance(hardwareMap));
+        subsystems.add(SampleMecanumDrive.getInstance(hardwareMap));
         subsystems.add(FourBar.getInstance(hardwareMap));
         subroutines = new ArrayList<>();
         structureConstructor = new StructureConstructor(structure);
@@ -60,9 +57,8 @@ public class Robot {
             subsystem.update();
         }
 
-        Iterator<DelayedSubroutine> iterator = subroutines.listIterator();
         long currentTime = System.currentTimeMillis();
-        while(iterator.hasNext()){
+        for(ListIterator<DelayedSubroutine> iterator = subroutines.listIterator(); iterator.hasNext();){
             DelayedSubroutine action = iterator.next();
             if(action.getActionStartTime() < currentTime){
                 action.getSubroutine().runAction(this);
@@ -83,8 +79,8 @@ public class Robot {
         return (Elevator) subsystems.get(elevatorIndex);
     }
 
-    public SampleMecanumDriveREVOptimized drive(){
-        return (SampleMecanumDriveREVOptimized) subsystems.get(driveIndex);
+    public SampleMecanumDrive drive(){
+        return (SampleMecanumDrive) subsystems.get(driveIndex);
     }
 
     public FourBar fourBar(){
@@ -120,7 +116,7 @@ public class Robot {
         structureConstructor.setStructure(structure);
     }
 
-    public ArrayList<DelayedSubroutine> actionCache(){
-        return subroutines;
+    public ListIterator<DelayedSubroutine> actionCache(){
+        return subroutines.listIterator();
     }
 }

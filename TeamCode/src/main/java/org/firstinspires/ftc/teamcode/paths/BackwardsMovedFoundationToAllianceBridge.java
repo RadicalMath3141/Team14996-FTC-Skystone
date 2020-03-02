@@ -3,14 +3,14 @@ package org.firstinspires.ftc.teamcode.paths;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 
 public class BackwardsMovedFoundationToAllianceBridge {
 
     private boolean redAlliance;
-    private SampleMecanumDriveREVOptimized drive;
+    private SampleMecanumDrive drive;
 
-    public BackwardsMovedFoundationToAllianceBridge (boolean redAlliance, SampleMecanumDriveREVOptimized drive){
+    public BackwardsMovedFoundationToAllianceBridge (boolean redAlliance, SampleMecanumDrive drive){
         this.redAlliance=redAlliance;
         this.drive = drive;
     }

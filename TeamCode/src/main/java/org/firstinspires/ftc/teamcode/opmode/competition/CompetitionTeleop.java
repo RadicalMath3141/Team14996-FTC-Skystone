@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.hardware.drive.localizer.TemporaryLocalizer;
 import org.firstinspires.ftc.teamcode.util.OmegaGamepad;
 
 import java.util.ArrayList;
@@ -91,10 +92,12 @@ public class CompetitionTeleop extends LinearOpMode {
         OmegaGamepad driverPad = new OmegaGamepad(gamepad1);
 
         robot.drive().setPoseEstimate(new Pose2d(0,0,0));
+        robot.drive().setLocalizer(new TemporaryLocalizer(hardwareMap,robot.drive().getImu()));
         robot.resetStructure();
         currentState = AUTO_TELEOP_STATES.MANUAL;
         robot.elevator().resetEncoder();
         waitForStart();
+        robot.intake().setIntakeServo(hardwareMap);
         while (!isStopRequested()) {
 
             //Foundation Grabber
@@ -114,6 +117,10 @@ public class CompetitionTeleop extends LinearOpMode {
             }
             if (buttonPad.ifOnceB()) {
                 Subroutines.EXHAUST.runAction(robot);
+            }
+
+            if(buttonPad.ifDPadRight()){
+                Subroutines.EXTEND_AND_RETRACT_KICKER.runAction(robot);
             }
 
             //Four Bar Control
@@ -190,7 +197,7 @@ public class CompetitionTeleop extends LinearOpMode {
         telemetry.addData("Structure Builder State: ", currentState);
 
         telemetry.addData("Structure Constructor Height: ", robot.getCurrentLayerNumber());
-        telemetry.addData("Elevator Motor Power: ", robot.elevator().getMotorPower());
+        telemetry.addData("If Stone is Inside the Middle Section: ", robot.intake().ifStoneInMidSection());
         telemetry.update();
     }
 

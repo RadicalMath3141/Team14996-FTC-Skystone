@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmode.test;
 
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveBase;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 
 /*
  * This is an example of a more complex path to really test the tuning.
@@ -18,21 +15,21 @@ import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveR
 public class SplineTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDriveREVOptimized drive = new SampleMecanumDriveREVOptimized(hardwareMap);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         waitForStart();
 
         if (isStopRequested()) return;
 
-        Trajectory traj = drive.trajectoryBuilder(new Pose2d(0,0,0))
+        Trajectory traj = drive.trajectoryBuilder(new Pose2d())
                 .splineTo(new Pose2d(30, 30, 0))
                 .build();
 
-        drive.followTrajectorySync(traj);
+        drive.followTrajectory(traj);
 
         sleep(2000);
 
-        drive.followTrajectorySync(
-                drive.trajectoryBuilder(traj.end(), Angle.norm(traj.end().getHeading() + Math.PI))
+        drive.followTrajectory(
+                drive.trajectoryBuilderReversed()
                         .splineTo(new Pose2d(0, 0, 0))
                         .build()
         );

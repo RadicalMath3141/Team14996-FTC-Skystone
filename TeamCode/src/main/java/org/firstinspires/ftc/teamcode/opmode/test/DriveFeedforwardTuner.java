@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.test;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.tuning.AccelRegression;
 import com.acmerobotics.roadrunner.tuning.RampRegression;
@@ -11,8 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.internal.system.Misc;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveBase;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.util.LoggingUtil;
 
 import static org.firstinspires.ftc.teamcode.hardware.drive.DriveConstants.getMaxRpm;
@@ -37,7 +35,7 @@ public class DriveFeedforwardTuner extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDriveBase drive = new SampleMecanumDriveREVOptimized(hardwareMap);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         NanoClock clock = NanoClock.system();
 
         telemetry.log().add("Press play to begin the feedforward tuning routine");

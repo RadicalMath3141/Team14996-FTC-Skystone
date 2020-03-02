@@ -13,19 +13,23 @@ public class FourBar implements Subsystem {
 
     //List of Different Servo Positions
     //grabberServo Positions
-    private double grabPosition = 0.85;
-    private double releasePosition = 0.7;
+    private double grabPosition = 0.8;
+    private double releasePosition = 0.55;
 
    //rightMoverServo Positions
-    private double retractedRightPosition = 0.07;
+    private double retractedRightPosition = 0;
     private double extendedRightPosition = 0.9;
 
+    private double middleRightPosition = 0.13;
+
     //leftMoverServo Positions
-    private double retractedLeftPosition = 0.93;
-    private double extendedLeftPosition = 0.1;
+    private double retractedLeftPosition = 0.95;
+    private double extendedLeftPosition = 0;
+
+    private double middleLeftPosition = 0.82;
 
     public enum FourBarState {
-        PRE_GRABBING, GRABBING, EXTENDED_OUT, RELEASED
+        LIFTED, PRE_GRABBING, GRABBING, EXTENDED_OUT, RELEASED
     }
 
     private static FourBar fourBar;
@@ -45,6 +49,10 @@ public class FourBar implements Subsystem {
 
     public void transitionToPreviousState(){
         switch (currentFourBarState){
+            case LIFTED:
+                transitionToState(FourBarState.RELEASED);
+                break;
+
             case EXTENDED_OUT:
                 transitionToState(FourBarState.GRABBING);
                 break;
@@ -54,7 +62,7 @@ public class FourBar implements Subsystem {
                 break;
 
             case PRE_GRABBING:
-                transitionToState(FourBarState.RELEASED);
+                transitionToState(FourBarState.LIFTED);
                 break;
 
             case GRABBING:
@@ -65,6 +73,9 @@ public class FourBar implements Subsystem {
 
     public void transitionToNextState(){
         switch (currentFourBarState){
+            case LIFTED:
+                transitionToState(FourBarState.PRE_GRABBING);
+                break;
             case PRE_GRABBING:
                 transitionToState(FourBarState.GRABBING);
                 break;
@@ -78,13 +89,18 @@ public class FourBar implements Subsystem {
                 break;
 
             case RELEASED:
-                transitionToState(FourBarState.PRE_GRABBING);
+                transitionToState(FourBarState.LIFTED);
                 break;
         }
     }
 
     public void transitionToState(FourBarState state){
         switch (state){
+            case LIFTED:
+                grabberServo.setPosition(releasePosition);
+                rightMoverServo.setPosition(middleRightPosition);
+                leftMoverServo.setPosition(middleLeftPosition);
+                break;
             case PRE_GRABBING:
                 grabberServo.setPosition(releasePosition);
                 rightMoverServo.setPosition(retractedRightPosition);
