@@ -20,11 +20,11 @@ public class ParkAuto extends LinearOpMode {
             robot.drive().setPoseEstimate(new Pose2d(-36,63,Math.toRadians(-90)));
         }
         waitForStart();
-
+        robot.intake().setReleasing();
         if(InformationAuto.isIfBridgeSidePark()){
             robot.drive().followTrajectory(new LoadingZoneToFarSkybridge(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
         } else {
-            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(10).build());
+            robot.drive().followTrajectory(robot.drive().trajectoryBuilder().back(15).build());
         }
 
         while(!isStopRequested()){
