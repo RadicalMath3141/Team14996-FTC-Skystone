@@ -98,6 +98,7 @@ public class CompetitionTeleop extends LinearOpMode {
         robot.elevator().resetEncoder();
         waitForStart();
         robot.intake().setIntakeServo(hardwareMap);
+        robot.intake().setReleasing();
         while (!isStopRequested()) {
 
             //Foundation Grabber

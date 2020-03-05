@@ -307,7 +307,7 @@ public class SkystoneVision extends OpenCvPipeline {
         return stone2MidX;
     }
 
-    public SkystonePosition.Positions getSkystonePosition(boolean ifStopRequested){
+    public SkystonePosition.Positions getSkystonePosition(boolean ifStopRequested, boolean ifRedAlliance){
         if (!ifStopRequested) {
             for (Rect s : stoneRectangles) {
                 if (s == null) {
@@ -340,12 +340,34 @@ public class SkystoneVision extends OpenCvPipeline {
                     double stone1MidX = (2 * largestRectangle1.x + largestSkystoneRect.width) / 2.0;
                     double stone2MidX = (2 * largestRectangle2.x + largestRectangle2.width) / 2.0;
 
-                    if (skystoneMidX > stone1MidX && skystoneMidX > stone2MidX) {
-                        skystonePosition = SkystonePosition.Positions.RIGHT;
-                    } else if (skystoneMidX < stone1MidX && skystoneMidX < stone2MidX) {
-                        skystonePosition = SkystonePosition.Positions.LEFT;
-                    } else if ((skystoneMidX > stone1MidX && skystoneMidX < stone2MidX) || (skystoneMidX < stone1MidX && skystoneMidX > stone2MidX)) {
-                        skystonePosition = SkystonePosition.Positions.MIDDLE;
+                    if(!ifRedAlliance){
+                        if (skystoneMidX > stone1MidX && skystoneMidX > stone2MidX) {
+                            skystonePosition = SkystonePosition.Positions.RIGHT;
+                        } else if(stoneRectangles.size() >= 3 ) {
+                            int rectToTheLeftCounter = 0;
+                            for (Rect rect : stoneRectangles) {
+                                if (2 * rect.x + rect.width < skystoneMidX) {
+                                    rectToTheLeftCounter++;
+                                }
+                            }
+                            if (rectToTheLeftCounter >= 2) {
+                                skystonePosition = SkystonePosition.Positions.MIDDLE;
+                            }
+                        } else if (skystoneMidX < stone1MidX && skystoneMidX < stone2MidX) {
+                            skystonePosition = SkystonePosition.Positions.LEFT;
+                        } else if ((skystoneMidX > stone1MidX && skystoneMidX < stone2MidX) || (skystoneMidX < stone1MidX && skystoneMidX > stone2MidX)) {
+                            skystonePosition = SkystonePosition.Positions.MIDDLE;
+                        }
+                    } else {
+                        if((skystoneMidX > stone1MidX && skystoneMidX < stone2MidX) || (skystoneMidX < stone1MidX && skystoneMidX > stone2MidX)){
+                            if(stone1MidX > stone2MidX){
+                                skystonePosition = SkystonePosition.Positions.LEFT;
+                            } else {
+                                skystonePosition = SkystonePosition.Positions.MIDDLE;
+                            }
+                        } else {
+                            skystonePosition = SkystonePosition.Positions.RIGHT;
+                        }
                     }
                 }
             } else if (stoneRectangles.size() == 1) {
@@ -369,10 +391,16 @@ public class SkystoneVision extends OpenCvPipeline {
                     double skystoneMidX = (2 * largestSkystoneRect.x + largestSkystoneRect.width) / 2.0;
                     double stone1MidX = (2 * largestRectangle1.x + largestSkystoneRect.width) / 2.0;
 
-                    if (skystoneMidX > stone1MidX) {
-                        skystonePosition = SkystonePosition.Positions.RIGHT;
-                    } else if (skystoneMidX < stone1MidX) {
-                        skystonePosition = SkystonePosition.Positions.LEFT;
+                    if(!ifRedAlliance){
+                        if (skystoneMidX > stone1MidX) {
+                            skystonePosition = SkystonePosition.Positions.RIGHT;
+                        } else if (skystoneMidX < stone1MidX) {
+                            skystonePosition = SkystonePosition.Positions.LEFT;
+                        }
+                    } else {
+                        if (skystoneMidX > stone1MidX) {
+                            skystonePosition = SkystonePosition.Positions.RIGHT;
+                        }
                     }
                 }
             }

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.auto.InformationAuto;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
 import org.firstinspires.ftc.teamcode.vision.SkystoneVision;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -38,7 +39,7 @@ public class VisionTest extends LinearOpMode {
 
         while(!isStopRequested()){
             try {
-                skystonePosition = skystoneVision.getSkystonePosition(isStopRequested());
+                skystonePosition = skystoneVision.getSkystonePosition(isStopRequested(), InformationAuto.ifRedAlliance());
                 telemetry.addData("Skystone Position: ", skystonePosition);
                 telemetry.addData("Number of skystones detected:", skystoneVision.numSkystones());
                 telemetry.addData("Number of stones detected: ", skystoneVision.numStones());

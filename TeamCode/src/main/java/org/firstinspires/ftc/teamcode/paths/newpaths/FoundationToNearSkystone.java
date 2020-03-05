@@ -24,23 +24,22 @@ public class FoundationToNearSkystone {
     public Trajectory toTrajectory (SkystonePosition.Positions skystonePosition, Robot robot){
         if(redAlliance){
             if(skystonePosition == SkystonePosition.Positions.LEFT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(32,-65,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,-65), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,-40,Math.toRadians(180))).splineTo(new Pose2d(-10,-40,Math.toRadians(180))).splineTo(new Pose2d(-41,-22,Math.toRadians(135))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(32,-50,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,-50), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,-40,Math.toRadians(180))).splineTo(new Pose2d(-10,-40,Math.toRadians(180))).splineTo(new Pose2d(-35,-22,Math.toRadians(135))).forward(7).build();
             } else if(skystonePosition == SkystonePosition.Positions.MIDDLE){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(32,-65,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,-65), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,-40,Math.toRadians(180))).splineTo(new Pose2d(-10,-40,Math.toRadians(180))).splineTo(new Pose2d(-33,-22,Math.toRadians(135))).build();
-            } else if(skystonePosition == SkystonePosition.Positions.RIGHT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(32,-65,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,-65), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,-40,Math.toRadians(180))).splineTo(new Pose2d(-10,-40,Math.toRadians(180))).splineTo(new Pose2d(-25,-22,Math.toRadians(135))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(32,-50,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,-50), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,-40,Math.toRadians(180))).splineTo(new Pose2d(-10,-40,Math.toRadians(180))).splineTo(new Pose2d(-27,-22,Math.toRadians(135))).forward(7).build();
+            } else if(skystonePosition == SkystonePosition.Positions.RIGHT) {
+                return drive.trajectoryBuilder().splineTo(new Pose2d(32, -50, Math.toRadians(180))).addSpatialMarker(new Vector2d(27, -50), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10, -40, Math.toRadians(180))).splineTo(new Pose2d(-10, -40, Math.toRadians(180))).splineTo(new Pose2d(-19, -22, Math.toRadians(135))).forward(7).build();
             }
-
         } else {
             if(skystonePosition == SkystonePosition.Positions.RIGHT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(32,65,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,65), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-41,22,Math.toRadians(225))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(32,50,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,50), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-35,22,Math.toRadians(225))).forward(7).build();
             } else if(skystonePosition == SkystonePosition.Positions.MIDDLE){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(32,65,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,65), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-33,22,Math.toRadians(225))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(32,50,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,50), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-27,22,Math.toRadians(225))).forward(7).build();
             } else if(skystonePosition == SkystonePosition.Positions.LEFT){
-                return drive.trajectoryBuilder().splineTo(new Pose2d(32,65,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,65), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-25,22,Math.toRadians(225))).build();
+                return drive.trajectoryBuilder().splineTo(new Pose2d(32,50,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,50), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-19,22,Math.toRadians(225))).forward(7).build();
             }
         }
-        return drive.trajectoryBuilder().splineTo(new Pose2d(32,65,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,65), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-25,22,Math.toRadians(225))).build();
+        return drive.trajectoryBuilder().splineTo(new Pose2d(32,60,Math.toRadians(180))).addSpatialMarker(new Vector2d(27,55), new SubroutineHandler(robot, Subroutines.LIFT_FOUNDATION_GRABBER)).splineTo(new Pose2d(10,40,Math.toRadians(180))).splineTo(new Pose2d(-10,40,Math.toRadians(180))).splineTo(new Pose2d(-19,22,Math.toRadians(225))).forward(7).build();
     }
 }
 

@@ -29,14 +29,14 @@ public class WheelIntake implements Subsystem {
 
     private DistanceSensor distanceSensor;
 
-    private double rightReleasePosition = 0.1;
-    private double leftReleasePosition = 0.3;
+    private double rightReleasePosition = 0.3;
+    private double leftReleasePosition = 0.1;
 
-    private double rightHoldPosition = 1.0;
-    private double leftHoldPosition = 0.4;
+    private double rightHoldPosition = 0.1;
+    private double leftHoldPosition = 0.3;
 
-    private double intakeSpeed = 0.5;
-    private double exhaustingSpeed = -0.4;
+    private double intakeSpeed = 0.45;
+    private double exhaustingSpeed = -0.2;
 
     private double kickerServoRetract = 0.69;
     private double kickerServoExtension = 0.12;

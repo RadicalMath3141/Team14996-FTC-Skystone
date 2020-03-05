@@ -60,8 +60,15 @@ public class Subroutines {
         robot.actionCache().add(new DelayedSubroutine(2300,LIFT_FOUR_BAR));
     };
 
+    public static final OneActionSubroutine EXTEND_AND_RETRACT_FOURBAR = robot -> {
+        Subroutines.EXTEND_FOUR_BAR.runAction(robot);
+        robot.actionCache().add(new DelayedSubroutine(300, Subroutines.LIFT_FOUR_BAR));
+    };
+
     //Elevator Subroutines
     public static final OneActionSubroutine GO_TO_ZERO = (robot -> robot.elevator().setPosition(0));
+
+    public static final OneActionSubroutine GO_UP_A_SMALL_AMOUNT = (robot -> robot.elevator().setPosition(5));
 
     public static final OneActionSubroutine GO_TO_CURRENT_LAYER = (robot -> robot.goToCurrentLayer());
 

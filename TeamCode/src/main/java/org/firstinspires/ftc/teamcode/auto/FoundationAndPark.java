@@ -42,6 +42,8 @@ public class FoundationAndPark extends LinearOpMode {
         }
 
         robot.drive().followTrajectory(new BuildingZoneToFoundation(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory());
+        robot.intake().setReleasing();
+        Subroutines.EXTEND_AND_RETRACT_FOURBAR.runAction(robot);
         while(!isStopRequested()){
             switch (currentState){
                 case GOING_TO_FOUNDATION:

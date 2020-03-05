@@ -70,19 +70,20 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
         resetTime();
         robot.elevator().setZero();
         robot.resetStructure();
-        robot.intake().setReleasing();
         robot.intake().setIntakeServo(hardwareMap);
-        robot.intake().setIntaking();
         while(!isStopRequested()){
             switch(currentState){
                 case SEARCHING:
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
+                        robot.intake().setReleasing();
+                        robot.intake().setIntaking();
+                        Subroutines.EXTEND_AND_RETRACT_FOURBAR.runAction(robot);
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
                         webcam.stopStreaming();
                         resetTime();
 
                         //Path to Follow
-                        robot.drive().followTrajectory(new LoadingZoneToFarSkystone(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory(skystonePosition));
+                        robot.drive().followTrajectory(new LoadingZoneToFarSkystone(InformationAuto.ifRedAlliance(), robot).toTrajectory(skystonePosition));
                         break;
                     }
                     if(skystonePosition == SkystonePosition.Positions.UNKNOWN && System.currentTimeMillis() - startTime > 500){
@@ -114,6 +115,7 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                     if (!robot.drive().isBusy()) {
                         resetTime();
                         robot.drive().followTrajectoryAsync(new LoadingZoneToMovedFoundation(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory(robot));currentState = AutoStates.GOING_TO_MOVED_FOUNDATION;
+                        Subroutines.EXTEND_AND_RETRACT_KICKER.runAction(robot);
                     }
                     break;
 
@@ -143,7 +145,7 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
 
     public void updateTelemetry(){
         try {
-            skystonePosition = skystoneVision.getSkystonePosition(isStopRequested());
+            skystonePosition = skystoneVision.getSkystonePosition(isStopRequested(), InformationAuto.ifRedAlliance());
             telemetry.addData("Skystone Position: ", skystonePosition);
         } catch (Exception e){
 
