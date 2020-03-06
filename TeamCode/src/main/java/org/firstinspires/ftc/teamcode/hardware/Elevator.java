@@ -16,11 +16,11 @@ import org.firstinspires.ftc.teamcode.util.Comparison;
 @Config
 public class Elevator implements Subsystem {
 
-    private DcMotor elevatorMotor;
-    private DigitalChannel magneticLimitSwitch;
+    private DcMotor elevatorMotorRight;
+    private DcMotor elevatorMotorLeft;
 
     //PID constants for the elevator
-    public static double kP = 0.3;
+    public static double kP = 0.5;
     public static double kI = 0.05;
     public static double kD = 0;
 
@@ -39,11 +39,13 @@ public class Elevator implements Subsystem {
 
     public static double CORRECTION_CONSTANT = 1.19;
 
-    private static final double winchDiameter = 1.55;
-    private static final double gearRatioToWinch = -1.0;
-    private static final double elevatorOffset = 2.5;
+    private static final double WINCH_DIAMETER = 3;
+    private static final double GEAR_RATIO = -1.0;
+    private static final double ELEVATOR_OFFSET = 2.5;
 
     private static final double assemblyMass = 10;
+
+    private double motorPower = 0;
 
     private MotionProfile motionProfile;
     private PIDFController pidfController;
@@ -53,7 +55,7 @@ public class Elevator implements Subsystem {
     private long startTime;
 
     public enum SystemState {
-        IDLE, MOVE_TO_TARGET, HOLD, LOWERING_TO_PLACE, DRIVER_CONTROLLED
+        IDLE, MOVE_TO_TARGET, HOLD, DRIVER_CONTROLLED
     }
 
     //Units are in inches above its resting height (reference is with respect to the bottom of the elevator, not floor)
@@ -71,12 +73,14 @@ public class Elevator implements Subsystem {
     }
 
     public Elevator(HardwareMap hardwareMap){
-        elevatorMotor = (DcMotor) hardwareMap.get("elevatorMotor");
-        elevatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        elevatorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        elevatorMotorRight = hardwareMap.dcMotor.get("elevatorMotorRight");
+        elevatorMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elevatorMotorRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        magneticLimitSwitch = hardwareMap.get(DigitalChannel.class, "elevatorSwitch");
-        magneticLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+        elevatorMotorLeft = hardwareMap.dcMotor.get("elevatorMotorLeft");
+        elevatorMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elevatorMotorLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+
         motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(new MotionState(0,0),new MotionState(0,0),maxSpeed,maxAcceleration,maxJerk);
         startTime = System.currentTimeMillis();
 
@@ -94,15 +98,8 @@ public class Elevator implements Subsystem {
             case MOVE_TO_TARGET:
                 updateMOVE_TO_TARGETState();
                 break;
-            case LOWERING_TO_PLACE:
-                updateLOWERING_TO_PLACEState();
-                break;
         }
 
-        //Zero Position if True
-        if(!magneticLimitSwitch.getState()){
-            zeroSensors();
-        }
         updatePosition();
     }
 
@@ -116,8 +113,6 @@ public class Elevator implements Subsystem {
                 return SystemState.MOVE_TO_TARGET;
             case HOLD:
                 return SystemState.HOLD;
-            case LOWERING_TO_PLACE:
-                return SystemState.LOWERING_TO_PLACE;
             case DRIVER_CONTROLLED:
                 return SystemState.DRIVER_CONTROLLED;
         }
@@ -131,8 +126,8 @@ public class Elevator implements Subsystem {
     }
 
     private void updateIDLEState(){
-        if(!Comparison.equalToEpsilon(elevatorMotor.getPower(),0)){
-            elevatorMotor.setPower(0);
+        if(!Comparison.equalToEpsilon(elevatorMotorRight.getPower(),0)){
+            setMotorPowers(0);
         }
     }
 
@@ -157,6 +152,7 @@ public class Elevator implements Subsystem {
         if(error < 0){
             feedForward = 0;
         }
+        motorPower = feedForward - correction;
         setMotorPowers(feedForward - correction);
     }
 
@@ -173,31 +169,8 @@ public class Elevator implements Subsystem {
     }
 
     public void setMotorPowers(double power){
-        elevatorMotor.setPower(power);
-    }
-
-    //LOWERING_TO_PLACE State
-    private SystemState handleTransitionToLOWERING_TO_PLACE(SystemState futureState){
-        motionProfile = MotionProfileGenerator.generateSimpleMotionProfile(new MotionState(currentHeight,0,0,0),new MotionState(currentHeight-1,0,0,0),maxSpeed,maxAcceleration,maxJerk);
-        goalHeight = currentHeight - 2;
-        startTime = System.currentTimeMillis();
-        return handleDefaultTransitions(futureState);
-    }
-
-    private void updateLOWERING_TO_PLACEState(){
-        double t = (System.currentTimeMillis() - startTime) / 1000.0;
-        if(t > motionProfile.duration()){
-            handleTransitionToHOLDState(SystemState.HOLD);
-            goalHeight = motionProfile.end().getX();
-        }
-        MotionState targetState = motionProfile.get(t);
-        double error = getRelativeHeight() - targetState.getX();
-        double correction = pidfController.update(error);
-        double feedForward = calculateFeedForward(targetState,getCurrentMass());
-        if(error < 0){
-            feedForward = 0;
-        }
-        setMotorPowers(feedForward - correction);
+        elevatorMotorRight.setPower(power);
+        elevatorMotorLeft.setPower(power);
     }
 
     //DRIVER_CONTROLLED
@@ -212,8 +185,12 @@ public class Elevator implements Subsystem {
     }
 
     public void updatePosition(){
-        currentHeight += (elevatorMotor.getCurrentPosition() - currentEncoder) / 753.2 * winchDiameter * gearRatioToWinch * Math.PI * CORRECTION_CONSTANT;
-        currentEncoder = elevatorMotor.getCurrentPosition();
+        currentHeight += (elevatorMotorRight.getCurrentPosition() - currentEncoder) / 1425.2 * WINCH_DIAMETER * GEAR_RATIO * Math.PI * CORRECTION_CONSTANT;
+        currentEncoder = elevatorMotorRight.getCurrentPosition();
+    }
+
+    public double getMotorPower(){
+        return motorPower;
     }
 
     public double getRelativeHeight(){
@@ -221,7 +198,7 @@ public class Elevator implements Subsystem {
     }
 
     public double getAbsoluteHeight(){
-        return getRelativeHeight() + elevatorOffset;
+        return getRelativeHeight() + ELEVATOR_OFFSET;
     }
 
     private double calculateFeedForward(MotionState targetState, double mass){
@@ -239,7 +216,8 @@ public class Elevator implements Subsystem {
 
     @Override
     public void zeroSensors() {
-        elevatorMotor.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
         currentHeight = 0;
     }
 
@@ -251,21 +229,21 @@ public class Elevator implements Subsystem {
 
     public void setZero(){
         currentHeight = 0;
-        currentEncoder = elevatorMotor.getCurrentPosition();
+        currentEncoder = elevatorMotorRight.getCurrentPosition();
     }
 
     public SystemState getCurrentState(){
         return currentState;
     }
 
-    public void lowerToPlace(){
-        handleTransitionToLOWERING_TO_PLACE(SystemState.LOWERING_TO_PLACE);
-    }
-
     public void resetEncoder(){
-        elevatorMotor.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        elevatorMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        currentEncoder = elevatorMotor.getCurrentPosition();
+        elevatorMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elevatorMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        elevatorMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elevatorMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        currentEncoder = elevatorMotorRight.getCurrentPosition();
     }
 
     public double getEncoderPosition(){

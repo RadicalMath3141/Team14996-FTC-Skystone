@@ -8,8 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.hardware.Elevator;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveBase;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 
 /**
@@ -24,7 +23,7 @@ import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 public class LocalizationTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDriveBase drive = new SampleMecanumDriveREVOptimized(hardwareMap);
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         FoundationGrabber foundationGrabber = new FoundationGrabber(hardwareMap);
         FtcDashboard dashboard = FtcDashboard.getInstance();
 

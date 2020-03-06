@@ -23,22 +23,22 @@ public class FoundationGrabber implements Subsystem {
                 return 1;
             }
         }, UP_LEFT{
-            public double getPosition() { return 0.4; }
+            public double getPosition() { return 0.00; }
         }, DOWN_RIGHT {
             public double getPosition() {
-                return 0.4;
+                return 0.43;
             }
         }, DOWN_LEFT{
             public double getPosition() {
-                return 1;
+                return 0.6;
             }
         }, READY_RIGHT{
             public double getPosition(){
-                return 0.4;
+                return 0.45;
             }
         }, READY_LEFT{
             public double getPosition(){
-                return 0.7;
+                return 0.5;
             }
         }
     }
@@ -60,18 +60,12 @@ public class FoundationGrabber implements Subsystem {
     }
 
     public FoundationGrabber(HardwareMap hardwareMap){
-        rightServo = (Servo) hardwareMap.get("rightServo");
-        leftServo = (Servo) hardwareMap.get("leftServo");
+        rightServo = (Servo) hardwareMap.get("rightGrabberServo");
+        leftServo = (Servo) hardwareMap.get("leftGrabberServo");
     }
 
     public void update(){
-        if(currentPosition.equals(Positions.UP_LEFT) || currentPosition.equals(Positions.UP_RIGHT)){
-            rightServo.setPosition(Positions.UP_RIGHT.getPosition());
-            leftServo.setPosition(Positions.UP_LEFT.getPosition());
-        } else {
-            rightServo.setPosition(Positions.DOWN_RIGHT.getPosition());
-            leftServo.setPosition(Positions.DOWN_LEFT.getPosition());
-        }
+
     }
 
     public void stop() {

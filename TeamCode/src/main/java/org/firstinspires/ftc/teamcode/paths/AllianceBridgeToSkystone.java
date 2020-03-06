@@ -3,15 +3,15 @@ package org.firstinspires.ftc.teamcode.paths;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.vision.SkystonePosition;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
 
 public class AllianceBridgeToSkystone {
 
     private boolean redAlliance;
-    private SampleMecanumDriveREVOptimized drive;
+    private SampleMecanumDrive drive;
 
-    public AllianceBridgeToSkystone(boolean redAlliance, SampleMecanumDriveREVOptimized drive){
+    public AllianceBridgeToSkystone(boolean redAlliance, SampleMecanumDrive drive){
         this.redAlliance=redAlliance;
         this.drive = drive;
     }

@@ -103,7 +103,7 @@ public class OdometryCalibration extends LinearOpMode {
         Since the left encoder is also mapped to a drive motor, the encoder value needs to be reversed with the negative sign in front
         THIS MAY NEED TO BE CHANGED FOR EACH ROBOT
        */
-        double encoderDifference = Math.abs(verticalLeft.getCurrentPosition()) + (Math.abs(verticalRight.getCurrentPosition()));
+        double encoderDifference = Math.abs(verticalLeft.getCurrentPosition());
 
         double verticalEncoderTickOffsetPerDegree = encoderDifference/angle;
 
@@ -163,7 +163,6 @@ public class OdometryCalibration extends LinearOpMode {
         left_front.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         left_back.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        left_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_front.setDirection(DcMotorSimple.Direction.REVERSE);
         right_back.setDirection(DcMotorSimple.Direction.REVERSE);
 

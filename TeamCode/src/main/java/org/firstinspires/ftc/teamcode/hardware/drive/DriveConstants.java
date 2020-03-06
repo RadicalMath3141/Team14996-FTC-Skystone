@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.hardware.drive;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.hardware.motors.NeveRest20Gearmotor;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 /*
@@ -11,6 +11,18 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
  */
 @Config
 public class DriveConstants {
+
+    /*
+     * These are motor constants that should be listed online for your motors.
+     */
+    public static final double MAX_RPM = 1;
+
+    /*
+     * Set the first flag appropriately. If using the built-in motor velocity PID, update
+     * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
+     */
+    public static final boolean RUN_USING_ENCODER = false;
+    public static final PIDCoefficients MOTOR_VELO_PID = null;
 
     /*
      * TODO: Tune or adjust the following constants to fit your robot. Note that the non-final
@@ -40,9 +52,9 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 0.01459;
+    public static double kV = 0.01603;
     public static double kA = 0.00009;
-    public static double kStatic = 0.07027;
+    public static double kStatic = 0.08730;
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
      * the constraints should never exceed ~80% of the robot's actual capabilities. While Road
@@ -52,12 +64,12 @@ public class DriveConstants {
      * forces acceleration-limited profiling).
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            45.0, 45.0, 0.0,
+            40, 30, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 
 
-    public static double encoderTicksToInches(int ticks) {
+    public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
     }
 
@@ -76,6 +88,6 @@ public class DriveConstants {
 
     public static double getMotorVelocityF() {
         // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
-        return 32767 / getTicksPerSec();
+        return 32767 * 60.0 / (MAX_RPM * TICKS_PER_REV);
     }
 }

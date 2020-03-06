@@ -4,16 +4,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.Structure;
 import org.firstinspires.ftc.teamcode.auto.structurebuilder.StructureConstructor;
-import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.OneByOneBySix;
+import org.firstinspires.ftc.teamcode.auto.structurebuilder.prefab.OneByOneByNine;
 import org.firstinspires.ftc.teamcode.auto.subroutines.DelayedSubroutine;
-import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
-import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDriveREVOptimized;
+import org.firstinspires.ftc.teamcode.hardware.drive.mecanum.SampleMecanumDrive;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
+import java.util.ListIterator;
 
 public class Robot {
 
@@ -25,27 +22,33 @@ public class Robot {
 
     private static StructureConstructor structureConstructor;
 
-    private static Structure structure = OneByOneBySix.toStructure();
+    private static Structure structure = OneByOneByNine.toStructure();
 
     //Indices of subsystems
-    private final int intakeIndex = 0;
+    private final int wheelIntakeIndex = 0;
     private final int foundationIndex = 1;
     private final int elevatorIndex = 2;
     private final int driveIndex = 3;
+    private final int fourBarIndex = 4;
 
     public static Robot getInstance(HardwareMap hardwareMap){
         if(robotInstance == null){
             robotInstance = new Robot(hardwareMap);
         }
+        robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
+        robotInstance.intake().setHolding();
+        robotInstance.fourBar().transitionToState(FourBar.FourBarState.LIFTED);
+        robotInstance.fourBar().setStoringCapstone();
         return robotInstance;
     }
 
     private Robot (HardwareMap hardwareMap){
         subsystems = new ArrayList<>();
-        subsystems.add(Intake.getInstance(hardwareMap));
+        subsystems.add(WheelIntake.getInstance(hardwareMap));
         subsystems.add(FoundationGrabber.getInstance(hardwareMap));
         subsystems.add(Elevator.getInstance(hardwareMap));
-        subsystems.add(SampleMecanumDriveREVOptimized.getInstance(hardwareMap));
+        subsystems.add(SampleMecanumDrive.getInstance(hardwareMap));
+        subsystems.add(FourBar.getInstance(hardwareMap));
         subroutines = new ArrayList<>();
         structureConstructor = new StructureConstructor(structure);
     }
@@ -55,9 +58,8 @@ public class Robot {
             subsystem.update();
         }
 
-        Iterator<DelayedSubroutine> iterator = subroutines.listIterator();
         long currentTime = System.currentTimeMillis();
-        while(iterator.hasNext()){
+        for(ListIterator<DelayedSubroutine> iterator = subroutines.listIterator(); iterator.hasNext();){
             DelayedSubroutine action = iterator.next();
             if(action.getActionStartTime() < currentTime){
                 action.getSubroutine().runAction(this);
@@ -66,8 +68,8 @@ public class Robot {
         }
     }
 
-    public Intake intake(){
-        return (Intake) subsystems.get(intakeIndex);
+    public WheelIntake intake(){
+        return (WheelIntake) subsystems.get(wheelIntakeIndex);
     }
 
     public FoundationGrabber foundationGrabber(){
@@ -78,8 +80,12 @@ public class Robot {
         return (Elevator) subsystems.get(elevatorIndex);
     }
 
-    public SampleMecanumDriveREVOptimized drive(){
-        return (SampleMecanumDriveREVOptimized) subsystems.get(driveIndex);
+    public SampleMecanumDrive drive(){
+        return (SampleMecanumDrive) subsystems.get(driveIndex);
+    }
+
+    public FourBar fourBar(){
+        return (FourBar) subsystems.get(fourBarIndex);
     }
 
     public void stop(){
@@ -107,17 +113,11 @@ public class Robot {
     }
 
     public void resetStructure(){
-        structure = OneByOneBySix.toStructure();
+        structure = OneByOneByNine.toStructure();
+        structureConstructor.setStructure(structure);
     }
 
-    public ArrayList<DelayedSubroutine> actionCache(){
-        return subroutines;
+    public ListIterator<DelayedSubroutine> actionCache(){
+        return subroutines.listIterator();
     }
-
-    public final Function0<Unit> goToCurrentLayer = new Function0<Unit>(){
-        public Unit invoke() {
-            goToCurrentLayer();
-            return Unit.INSTANCE;
-        }
-    };
 }

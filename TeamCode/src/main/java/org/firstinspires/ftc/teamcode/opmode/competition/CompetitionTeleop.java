@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.auto.subroutines.Subroutines;
 import org.firstinspires.ftc.teamcode.hardware.FoundationGrabber;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
+import org.firstinspires.ftc.teamcode.hardware.drive.localizer.TemporaryLocalizer;
 import org.firstinspires.ftc.teamcode.util.OmegaGamepad;
 
 import java.util.ArrayList;
@@ -28,27 +29,30 @@ public class CompetitionTeleop extends LinearOpMode {
     private static AUTO_TELEOP_STATES currentState = AUTO_TELEOP_STATES.MANUAL;
 
     public enum AUTO_TELEOP_STATES {
-        MANUAL, PRE_GRABBING, GRABBING, PRE_PLACING, PLACING, RELEASING;
+        MANUAL, INTAKING, GRABBING, PRE_PLACING, EXTENDED, PLACING, RELEASING;
 
         public static AUTO_TELEOP_STATES nextState(){
             switch(currentState){
                 case MANUAL:
-                    return PRE_GRABBING;
+                    return INTAKING;
 
-                case PRE_GRABBING:
+                case INTAKING:
                     return GRABBING;
 
                 case GRABBING:
                     return PRE_PLACING;
 
                 case PRE_PLACING:
+                    return EXTENDED;
+
+                case EXTENDED:
                     return PLACING;
 
                 case PLACING:
                     return RELEASING;
 
                 case RELEASING:
-                    return PRE_GRABBING;
+                    return INTAKING;
             }
             return null;
         }
@@ -56,9 +60,9 @@ public class CompetitionTeleop extends LinearOpMode {
         public static AUTO_TELEOP_STATES previousState(){
             switch(currentState){
                 case GRABBING:
-                    return PRE_GRABBING;
+                    return INTAKING;
 
-                case PRE_GRABBING:
+                case INTAKING:
                     return MANUAL;
 
                 case PRE_PLACING:
@@ -67,8 +71,11 @@ public class CompetitionTeleop extends LinearOpMode {
                 case PLACING:
                     return PRE_PLACING;
 
-                case RELEASING:
+                case EXTENDED:
                     return PLACING;
+
+                case RELEASING:
+                    return EXTENDED;
 
                 case MANUAL:
                     return MANUAL;
@@ -85,11 +92,13 @@ public class CompetitionTeleop extends LinearOpMode {
         OmegaGamepad driverPad = new OmegaGamepad(gamepad1);
 
         robot.drive().setPoseEstimate(new Pose2d(0,0,0));
+        robot.drive().setLocalizer(new TemporaryLocalizer(hardwareMap,robot.drive().getImu()));
         robot.resetStructure();
         currentState = AUTO_TELEOP_STATES.MANUAL;
         robot.elevator().resetEncoder();
         waitForStart();
-        robot.intake().release();
+        robot.intake().setIntakeServo(hardwareMap);
+        robot.intake().setReleasing();
         while (!isStopRequested()) {
 
             //Foundation Grabber
@@ -99,31 +108,43 @@ public class CompetitionTeleop extends LinearOpMode {
                 Subroutines.LOWER_FOUNDATION_GRABBER.runAction(robot);
             }
 
-            if(driverPad.ifOnceB()){
+            if(driverPad.ifOnceRightBumper()){
                 ifSlower = !ifSlower;
             }
 
             //Intake Control
             if (buttonPad.ifOnceA()) {
-                robot.intake().setGrabbing();
-                transitionToState(AUTO_TELEOP_STATES.MANUAL);
+                Subroutines.INTAKE.runAction(robot);
             }
             if (buttonPad.ifOnceB()) {
-                robot.intake().open();
-                transitionToState(AUTO_TELEOP_STATES.MANUAL);
+                Subroutines.EXHAUST.runAction(robot);
             }
 
-            if(buttonPad.ifOnceX()){
-                Subroutines.DEPLOY_CAPSTONE.runAction(robot);
-                transitionToState(AUTO_TELEOP_STATES.MANUAL);
+            if(buttonPad.ifDPadRight()){
+                Subroutines.EXTEND_AND_RETRACT_KICKER.runAction(robot);
+            }
+
+            if(buttonPad.ifOnceDPadLeft()){
+                robot.fourBar().rotateCapstoneServo();
+            }
+
+            //Four Bar Control
+            if (buttonPad.ifOnceX()){
+                robot.fourBar().transitionToNextState();
+            }
+
+            if(buttonPad.ifOnceY()){
+                robot.fourBar().transitionToPreviousState();
             }
 
             //Elevator Control
             if(gamepad2.left_stick_y > 0.05 || gamepad2.left_stick_y < -0.05){
                 robot.elevator().setMotorPowers(gamepad2.left_stick_y);
-                robot.elevator().setDriverControlled();
+                if(!(currentState == AUTO_TELEOP_STATES.PLACING||currentState == AUTO_TELEOP_STATES.PRE_PLACING)){
+                    becomeManual();
+                }
             } else {
-                robot.elevator().setMotorPowers(gamepad2.left_stick_y);
+                robot.elevator().setMotorPowers(0);
             }
             
             //Drive Control
@@ -153,6 +174,11 @@ public class CompetitionTeleop extends LinearOpMode {
             if(buttonPad.ifOnceDPadUp()){
                 robot.setToNextLayerHeight();
             }
+            
+            //Elevator Zero Reset
+            if(buttonPad.ifOnceY()){
+                robot.elevator().setZero();
+            }
 
             updateTelemetry();
             buttonPad.update();
@@ -168,12 +194,15 @@ public class CompetitionTeleop extends LinearOpMode {
         telemetry.addData("Drivetrain Y: ", driveTrainLocation.getY());
         telemetry.addData("Drivetrain Heading: ", Math.toDegrees(driveTrainLocation.getHeading()));
 
+        telemetry.addData("Forward Odometer: ", hardwareMap.dcMotor.get("leftRear").getCurrentPosition());
+        telemetry.addData("Normal Odometer: ", hardwareMap.dcMotor.get("leftFront").getCurrentPosition());
+
         telemetry.addData("Elevator Height: ", robot.elevator().getRelativeHeight());
         telemetry.addData("If Slow Movement: ", ifSlower);
         telemetry.addData("Structure Builder State: ", currentState);
 
         telemetry.addData("Structure Constructor Height: ", robot.getCurrentLayerNumber());
-
+        telemetry.addData("If Stone is Inside the Middle Section: ", robot.intake().ifStoneInMidSection());
         telemetry.update();
     }
 
@@ -186,17 +215,23 @@ public class CompetitionTeleop extends LinearOpMode {
                 becomeManual();
                 return;
 
-            case PRE_GRABBING:
+            case INTAKING:
                 Subroutines.GO_TO_ZERO.runAction(robot);
-                Subroutines.RELEASE_STONE.runAction(robot);
+                Subroutines.INTAKE.runAction(robot);
+                Subroutines.LOWER_FOUR_BAR.runAction(robot);
                 return;
 
             case GRABBING:
-                Subroutines.GRAB_STONE.runAction(robot);
+                Subroutines.IDLE_INTAKE.runAction(robot);
+                Subroutines.GRAB_FOUR_BAR.runAction(robot);
                 return;
 
             case PRE_PLACING:
                 Subroutines.GO_TO_CURRENT_LAYER.runAction(robot);
+                return;
+
+            case EXTENDED:
+                Subroutines.EXTEND_FOUR_BAR.runAction(robot);
                 return;
 
             case PLACING:
@@ -204,8 +239,8 @@ public class CompetitionTeleop extends LinearOpMode {
                 return;
 
             case RELEASING:
+                Subroutines.RELEASE_FOUR_BAR.runAction(robot);
                 robot.setToNextLayerHeight();
-                Subroutines.RELEASE_STONE.runAction(robot);
                 return;
         }
     }
@@ -235,9 +270,9 @@ public class CompetitionTeleop extends LinearOpMode {
         //Left Front is Index 0, Left Back is Index 1, Right Front is Index 2, Right Back is Index 3
         List<Double> powerValues = new ArrayList<>();
 
-        powerValues.add(velocityX + velocityY - velocityR - anglePowerCorrection);
-
         powerValues.add(velocityX - velocityY - velocityR - anglePowerCorrection);
+
+        powerValues.add(velocityX + velocityY - velocityR - anglePowerCorrection);
 
         powerValues.add(velocityX + velocityY + velocityR + anglePowerCorrection);
 
