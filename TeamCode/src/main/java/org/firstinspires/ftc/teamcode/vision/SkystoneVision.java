@@ -393,7 +393,7 @@ public class SkystoneVision extends OpenCvPipeline {
 
                     if(!ifRedAlliance){
                         if (skystoneMidX > stone1MidX) {
-                            skystonePosition = SkystonePosition.Positions.RIGHT;
+                            skystonePosition = SkystonePosition.Positions.MIDDLE;
                         } else if (skystoneMidX < stone1MidX) {
                             skystonePosition = SkystonePosition.Positions.LEFT;
                         }
@@ -402,6 +402,8 @@ public class SkystoneVision extends OpenCvPipeline {
                             skystonePosition = SkystonePosition.Positions.RIGHT;
                         }
                     }
+                } else if(skystoneRectangles.size() == 0 && !ifRedAlliance){
+                    skystonePosition = SkystonePosition.Positions.RIGHT;
                 }
             }
         }

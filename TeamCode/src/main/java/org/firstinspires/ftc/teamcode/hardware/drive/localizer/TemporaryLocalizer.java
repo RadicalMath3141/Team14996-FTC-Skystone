@@ -57,8 +57,8 @@ public class TemporaryLocalizer extends TwoTrackingWheelLocalizer {
 
         hub = hardwareMap.get(ExpansionHubEx.class, "Expansion Hub 1");
 
-        leftEncoder = hardwareMap.get(ExpansionHubMotor.class,"leftFront");
-        frontEncoder = hardwareMap.get(ExpansionHubMotor.class,"leftRear");
+        leftEncoder = hardwareMap.get(ExpansionHubMotor.class,"leftRear");
+        frontEncoder = hardwareMap.get(ExpansionHubMotor.class,"leftFront");
 
         this.imu = imu;
     }

@@ -124,6 +124,10 @@ public class CompetitionTeleop extends LinearOpMode {
                 Subroutines.EXTEND_AND_RETRACT_KICKER.runAction(robot);
             }
 
+            if(buttonPad.ifOnceDPadLeft()){
+                robot.fourBar().rotateCapstoneServo();
+            }
+
             //Four Bar Control
             if (buttonPad.ifOnceX()){
                 robot.fourBar().transitionToNextState();
@@ -190,8 +194,8 @@ public class CompetitionTeleop extends LinearOpMode {
         telemetry.addData("Drivetrain Y: ", driveTrainLocation.getY());
         telemetry.addData("Drivetrain Heading: ", Math.toDegrees(driveTrainLocation.getHeading()));
 
-        telemetry.addData("Forward Odometer: ", hardwareMap.dcMotor.get("leftFront").getCurrentPosition());
-        telemetry.addData("Normal Odometer: ", hardwareMap.dcMotor.get("leftRear").getCurrentPosition());
+        telemetry.addData("Forward Odometer: ", hardwareMap.dcMotor.get("leftRear").getCurrentPosition());
+        telemetry.addData("Normal Odometer: ", hardwareMap.dcMotor.get("leftFront").getCurrentPosition());
 
         telemetry.addData("Elevator Height: ", robot.elevator().getRelativeHeight());
         telemetry.addData("If Slow Movement: ", ifSlower);

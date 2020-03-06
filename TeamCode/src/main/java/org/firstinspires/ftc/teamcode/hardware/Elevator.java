@@ -237,10 +237,10 @@ public class Elevator implements Subsystem {
     }
 
     public void resetEncoder(){
-        elevatorMotorRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevatorMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        elevatorMotorLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
+        elevatorMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevatorMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         currentEncoder = elevatorMotorRight.getCurrentPosition();

@@ -35,7 +35,7 @@ public class WheelIntake implements Subsystem {
     private double rightHoldPosition = 0.1;
     private double leftHoldPosition = 0.3;
 
-    private double intakeSpeed = 0.45;
+    private double intakeSpeed = 0.30;
     private double exhaustingSpeed = -0.2;
 
     private double kickerServoRetract = 0.69;

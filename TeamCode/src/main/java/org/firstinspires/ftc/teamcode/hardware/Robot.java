@@ -38,6 +38,7 @@ public class Robot {
         robotInstance.foundationGrabber().setCurrentPosition(FoundationGrabber.Positions.UP_LEFT);
         robotInstance.intake().setHolding();
         robotInstance.fourBar().transitionToState(FourBar.FourBarState.LIFTED);
+        robotInstance.fourBar().setStoringCapstone();
         return robotInstance;
     }
 

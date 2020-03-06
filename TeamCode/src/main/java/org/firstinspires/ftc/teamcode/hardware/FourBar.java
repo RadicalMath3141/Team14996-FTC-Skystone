@@ -8,6 +8,7 @@ public class FourBar implements Subsystem {
     private Servo grabberServo;
     private Servo rightMoverServo;
     private Servo leftMoverServo;
+    private Servo capstoneDeployServo;
 
     private FourBarState currentFourBarState = FourBarState.PRE_GRABBING;
 
@@ -17,16 +18,20 @@ public class FourBar implements Subsystem {
     private double releasePosition = 0.55;
 
    //rightMoverServo Positions
-    private double retractedRightPosition = 0;
-    private double extendedRightPosition = 0.9;
+    private double retractedRightPosition = 0.05;
+    private double extendedRightPosition = 0.95;
 
-    private double middleRightPosition = 0.13;
+    private double middleRightPosition = 0.2;
 
     //leftMoverServo Positions
     private double retractedLeftPosition = 0.95;
     private double extendedLeftPosition = 0;
 
-    private double middleLeftPosition = 0.82;
+    private double middleLeftPosition = 0.75;
+
+    //capstoneDeployServo Positions
+    private double deployPosition = 0.25;
+    private double storePosition = 0.9;
 
     public enum FourBarState {
         LIFTED, PRE_GRABBING, GRABBING, EXTENDED_OUT, RELEASED
@@ -45,6 +50,7 @@ public class FourBar implements Subsystem {
         grabberServo = hardwareMap.servo.get("stoneGrabberServo");
         rightMoverServo = hardwareMap.servo.get("rightFourBarMover");
         leftMoverServo = hardwareMap.servo.get("leftFourBarMover");
+        capstoneDeployServo = hardwareMap.servo.get("capstoneDeployServo");
     }
 
     public void transitionToPreviousState(){
@@ -134,6 +140,18 @@ public class FourBar implements Subsystem {
         grabberServo.setPosition(grabberServo.getPosition());
         rightMoverServo.setPosition(rightMoverServo.getPosition());
         leftMoverServo.setPosition(leftMoverServo.getPosition());
+    }
+
+    public void rotateCapstoneServo(){
+        if(capstoneDeployServo.getPosition() == deployPosition){
+            capstoneDeployServo.setPosition(storePosition);
+        } else {
+            capstoneDeployServo.setPosition(deployPosition);
+        }
+    }
+
+    public void setStoringCapstone(){
+        capstoneDeployServo.setPosition(storePosition);
     }
 
     public void zeroSensors(){}
