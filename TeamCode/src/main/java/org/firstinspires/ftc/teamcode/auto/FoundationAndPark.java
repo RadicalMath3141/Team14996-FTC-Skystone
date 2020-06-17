@@ -20,6 +20,7 @@ public class FoundationAndPark extends LinearOpMode {
     private Robot robot;
     private AutoState currentState = AutoState.GOING_TO_FOUNDATION;
     private long startTime;
+    private int manueverCount = 0;
 
     private enum AutoState {
         GOING_TO_FOUNDATION, GRABBING_FOUNDATION, MOVING_THE_FOUNDATION, PARKING
@@ -43,7 +44,7 @@ public class FoundationAndPark extends LinearOpMode {
 
         robot.drive().followTrajectory(new BuildingZoneToFoundation(InformationAuto.ifRedAlliance(), robot.drive()).toTrajectory());
         robot.intake().setReleasing();
-        Subroutines.EXTEND_AND_RETRACT_FOURBAR.runAction(robot);
+        robot.intake().setIntakeServo(hardwareMap);
         while(!isStopRequested()){
             switch (currentState){
                 case GOING_TO_FOUNDATION:
@@ -64,13 +65,18 @@ public class FoundationAndPark extends LinearOpMode {
 
                 case MOVING_THE_FOUNDATION:
                     if(!robot.drive().isBusy()){
-                        Subroutines.LIFT_FOUNDATION_GRABBER.runAction(robot);
-                        if(InformationAuto.isIfBridgeSidePark()){
-                            robot.drive().followTrajectory(new BuildingZoneToNeutralBridgeSide(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                        if(manueverCount == 0){
+                            robot.drive().followTrajectoryAsync(robot.drive().trajectoryBuilder().back(20).build());
+                            manueverCount++;
                         } else {
-                            robot.drive().followTrajectory(new BuildingZoneToWallSide(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                            Subroutines.LIFT_FOUNDATION_GRABBER.runAction(robot);
+                            if(InformationAuto.isIfBridgeSidePark()){
+                                robot.drive().followTrajectory(new BuildingZoneToNeutralBridgeSide(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                            } else {
+                                robot.drive().followTrajectory(new BuildingZoneToWallSide(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
+                            }
+                            currentState = AutoState.PARKING;
                         }
-                        currentState = AutoState.PARKING;
                     }
                     break;
                 case PARKING:

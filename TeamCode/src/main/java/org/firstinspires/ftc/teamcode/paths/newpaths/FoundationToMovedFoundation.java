@@ -17,9 +17,9 @@ public class FoundationToMovedFoundation {
 
     public Trajectory toTrajectory (){
         if(redAlliance){
-            return drive.trajectoryBuilder().splineTo(new Pose2d(48,-67,Math.toRadians(180))).build();
+            return drive.trajectoryBuilder().splineTo(new Pose2d(32,-55,Math.toRadians(170))).build();
         }
-        return drive.trajectoryBuilder().splineTo(new Pose2d(48,67,Math.toRadians(180))).build();
+        return drive.trajectoryBuilder().splineTo(new Pose2d(32,55,Math.toRadians(190))).build();
     }
 
 }

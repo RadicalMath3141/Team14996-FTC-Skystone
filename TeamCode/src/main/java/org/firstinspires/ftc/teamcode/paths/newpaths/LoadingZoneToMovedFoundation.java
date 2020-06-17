@@ -21,9 +21,9 @@ public class LoadingZoneToMovedFoundation {
 
     public Trajectory toTrajectory (Robot robot){
         if(redAlliance){
-            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(-10,-48,Math.toRadians(0))).addSpatialMarker(new Vector2d(-10,-50),new SubroutineHandler(robot,Subroutines.IDLE_AND_GRAB)).splineTo(new Pose2d(20,-50,Math.toRadians(0))).addSpatialMarker(new Vector2d(35,-48),new SubroutineHandler(robot, Subroutines.EXTEND_AND_PLACE)).splineTo(new Pose2d(50,-50,Math.toRadians(0))).build();
+            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(-10,-45,Math.toRadians(0))).addSpatialMarker(new Vector2d(-10,-45),new SubroutineHandler(robot,Subroutines.IDLE_AND_GRAB)).splineTo(new Pose2d(20,-45,Math.toRadians(0))).addSpatialMarker(new Vector2d(35,-45),new SubroutineHandler(robot, Subroutines.EXTEND_AND_PLACE)).splineTo(new Pose2d(50,-45,Math.toRadians(0))).build();
         }
-        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(-10,48,Math.toRadians(0))).splineTo(new Pose2d(20,50,Math.toRadians(0))).addSpatialMarker(new Vector2d(-10,50),new SubroutineHandler(robot,Subroutines.IDLE_AND_GRAB)).addSpatialMarker(new Vector2d(35,48),new SubroutineHandler(robot, Subroutines.EXTEND_AND_PLACE)).splineTo(new Pose2d(50,50,Math.toRadians(0))).build();
+        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(-10,45,Math.toRadians(0))).splineTo(new Pose2d(20,45,Math.toRadians(0))).addSpatialMarker(new Vector2d(-10,45),new SubroutineHandler(robot,Subroutines.IDLE_AND_GRAB)).addSpatialMarker(new Vector2d(35,45),new SubroutineHandler(robot, Subroutines.EXTEND_AND_PLACE)).splineTo(new Pose2d(50,45,Math.toRadians(0))).build();
     }
 
 }

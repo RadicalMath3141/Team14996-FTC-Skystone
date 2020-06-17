@@ -18,19 +18,19 @@ public class FourBar implements Subsystem {
     private double releasePosition = 0.55;
 
    //rightMoverServo Positions
-    private double retractedRightPosition = 0.05;
+    private double retractedRightPosition = 0.15;
     private double extendedRightPosition = 0.95;
 
     private double middleRightPosition = 0.2;
 
     //leftMoverServo Positions
-    private double retractedLeftPosition = 0.95;
+    private double retractedLeftPosition = 0.85;
     private double extendedLeftPosition = 0;
 
     private double middleLeftPosition = 0.75;
 
     //capstoneDeployServo Positions
-    private double deployPosition = 0.25;
+    private double deployPosition = 0.27;
     private double storePosition = 0.9;
 
     public enum FourBarState {

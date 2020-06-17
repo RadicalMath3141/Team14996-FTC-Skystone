@@ -15,11 +15,11 @@ public class BuildingZoneToFoundation {
         this.drive = drive;
     }
 
-    public Trajectory toTrajectory (){
-        if(redAlliance){
-            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(60,-23,Math.toRadians(270))).build();
+    public Trajectory toTrajectory () {
+        if (redAlliance) {
+            return drive.trajectoryBuilderReversed().splineTo(new Pose2d(55, -28, Math.toRadians(90))).build();
         }
-        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(60,23,Math.toRadians(270))).build();
+        return drive.trajectoryBuilderReversed().splineTo(new Pose2d(55, 28, Math.toRadians(270))).build();
     }
 
 }

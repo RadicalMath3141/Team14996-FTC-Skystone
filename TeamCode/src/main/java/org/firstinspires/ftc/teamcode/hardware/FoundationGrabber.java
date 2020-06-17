@@ -26,11 +26,11 @@ public class FoundationGrabber implements Subsystem {
             public double getPosition() { return 0.00; }
         }, DOWN_RIGHT {
             public double getPosition() {
-                return 0.43;
+                return 0.35;
             }
         }, DOWN_LEFT{
             public double getPosition() {
-                return 0.6;
+                return 0.7;
             }
         }, READY_RIGHT{
             public double getPosition(){

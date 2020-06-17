@@ -21,6 +21,7 @@ public class ParkAuto extends LinearOpMode {
         }
         waitForStart();
         robot.intake().setReleasing();
+        robot.intake().setIntakeServo(hardwareMap);
         if(InformationAuto.isIfBridgeSidePark()){
             robot.drive().followTrajectory(new LoadingZoneToFarSkybridge(InformationAuto.ifRedAlliance(),robot.drive()).toTrajectory());
         } else {

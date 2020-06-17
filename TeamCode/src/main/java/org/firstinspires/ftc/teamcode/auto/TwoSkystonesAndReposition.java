@@ -77,7 +77,7 @@ public class TwoSkystonesAndReposition extends LinearOpMode {
                     if(skystonePosition != SkystonePosition.Positions.UNKNOWN){
                         robot.intake().setReleasing();
                         robot.intake().setIntaking();
-                        Subroutines.EXTEND_AND_RETRACT_FOURBAR.runAction(robot);
+                        robot.actionCache().add(new DelayedSubroutine(300,Subroutines.EXTEND_AND_RETRACT_FOURBAR));;
                         currentState = AutoStates.GOING_TO_FIRST_SKYSTONE;
                         webcam.stopStreaming();
                         resetTime();
